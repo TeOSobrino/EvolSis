@@ -59,7 +59,6 @@ int main (int argc, char** argv){
         for(int j = 0; j < GENE_NUM; j++)
             pop[i][j] = rand()%MAXX;
     
-    
     //2. fitness
     eval_ptr eval_fnt = &parabola;
     // eval_ptr eval_fnt = &hillFnt;
@@ -67,14 +66,7 @@ int main (int argc, char** argv){
 
     int t = 0;
     while(t < 500){
-        for(int i = 0; i < POP_SIZE; i++){
-            printf("ind: %d fnt: %d\n", pop[i][0], eval_fnt(pop[i]));
-        }
         fitness_fnt(eval_fnt, pop);
-
-        printf("Fitness arr:\n");
-        printArr(fitness_score, POP_SIZE);
-
         //elitistCrossover(pop);
         tournamentCrossover(pop);
         t++;
@@ -97,7 +89,6 @@ void printPop(individual* arr, int size){
 }
 
 int hillFnt(individual ind){
-
     int val = ind[0]; //tem q abstrair esse treco
     return (val > 500 ? 1000 - val : val); //haha ternário
 }
@@ -131,13 +122,13 @@ void fitnessFnt(eval_ptr eval_fnt, individual pop[POP_SIZE]){
             lb = fit;
     }
 
+    // //normalização (atualmente não é necessária)
     // if(ub == lb){
     //     printf("Solução encontrada: %d\n", ub);
     //     exit(1);
     // } //menor e maior soluções são iguais (convergiu)
 
     // printf("[%d, %d]\n", lb, ub);
-    // //normalização 
     // int range = ub - lb + 1;
     // for(int i = 0; i < POP_SIZE; i++){
     //     fitness_score[i] = (((fitness_score[i] - lb)*100)/(range));
@@ -149,10 +140,6 @@ void fitnessFnt(eval_ptr eval_fnt, individual pop[POP_SIZE]){
 void elitistCrossover(individual pop[POP_SIZE]){
 
     individual new_pop[POP_SIZE];
-
-    printf("pop before elitistCrossover:\n");
-    printPop(pop, POP_SIZE);
-
     new_pop[0][0] = best_sol[0]; //precisa abstrair aqui também
 
     for(int i = 1; i < POP_SIZE; i++){
@@ -166,26 +153,17 @@ void elitistCrossover(individual pop[POP_SIZE]){
             mate = candidate_2;
         
         new_pop[i][0] = (best_sol[0] + pop[mate][0])/2 
-            + ((double) (rand()%MAXX)-MAXX/2)*MUT_RATE/100.0f; //mutação
+            + ((double) (rand()%MAXX)-MAXX/2)*MUT_RATE/1.0f; //mutação
     }
 
-    printf("new_pop after elitistCrossover:\n");
-    printPop(new_pop, POP_SIZE);
     for(int i = 0; i < POP_SIZE; i++){
         pop[i][0] = new_pop[i][0];
     }
-
-    printf("pop after elitistCrossover:\n");
-    printPop(pop, POP_SIZE);
 }
 
 void tournamentCrossover(individual pop[POP_SIZE]){
 
     individual new_pop[POP_SIZE];
-
-    printf("pop before crossover:\n");
-    printPop(pop, POP_SIZE);
-
     new_pop[0][0] = best_sol[0]; //precisa abstrair aqui também
 
     for(int i = 1; i < POP_SIZE; i++){
@@ -211,12 +189,7 @@ void tournamentCrossover(individual pop[POP_SIZE]){
             + ((double) (rand()%MAXX)-(MAXX/2))*MUT_RATE/1.0f; //mutação
     }
 
-    printf("new_pop after crossover:\n");
-    printPop(new_pop, POP_SIZE);
     for(int i = 0; i < POP_SIZE; i++){
         pop[i][0] = new_pop[i][0];
     }
-
-    printf("pop after crossover:\n");
-    printPop(pop, POP_SIZE);
 }
