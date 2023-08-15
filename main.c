@@ -66,7 +66,7 @@ int main (int argc, char** argv){
     fitness_ptr fitness_fnt = &fitnessFnt;
 
     int t = 0;
-    while(t < 100){
+    while(t < 500){
         for(int i = 0; i < POP_SIZE; i++){
             printf("ind: %d fnt: %d\n", pop[i][0], eval_fnt(pop[i]));
         }
@@ -75,8 +75,8 @@ int main (int argc, char** argv){
         printf("Fitness arr:\n");
         printArr(fitness_score, POP_SIZE);
 
-        elitistCrossover(pop);
-        //tournamentCrossover(pop);
+        //elitistCrossover(pop);
+        tournamentCrossover(pop);
         t++;
     }
     return 0;
@@ -105,7 +105,7 @@ int hillFnt(individual ind){
 //obs: para usar a parabóla verifique se MAXX^2 <= RAND_MAX (MAXX <= 2^16) 
 int parabola(individual ind){
     int val = ind[0]; //abstrair
-    int y = -val*val - 12*val + 8;
+    int y = -val*val + 12*val + 8;
     return y;
 }
 
@@ -208,7 +208,7 @@ void tournamentCrossover(individual pop[POP_SIZE]){
             mate_2 = candidate_22;
         
         new_pop[i][0] = (pop[mate_1][0] + pop[mate_2][0])/2 //asbtrair aqui
-            + ((double) (rand()%MAXX)-MAXX/2)*MUT_RATE/100.0f; //mutação
+            + ((double) (rand()%MAXX)-(MAXX/2))*MUT_RATE/1.0f; //mutação
     }
 
     printf("new_pop after crossover:\n");
