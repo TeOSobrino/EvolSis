@@ -29,14 +29,55 @@ individual best_sol; //melhor solução armazenada de forma global
 #define POP_SIZE 10 //população com 10 indivíduos
 
 typedef int (*eval_ptr) (individual); //ponteiro para função sendo analisada 
-typedef int (*fitness_ptr) (eval_ptr eval_fnt, int[GENE_NUM]); //ponteiro para a função de fitness
+typedef void (*fitness_ptr) (eval_ptr eval_fnt, individual[POP_SIZE]); //ponteiro para a função de fitness
+
+int fitness_score[POP_SIZE]; //vetor de fitness
 
 #define MUT_RATE 0.1 //taxa de mutação base = 10%
+
+void printArr(int* arr, int size){
+    for(int i = 0; i < size; i++){
+        printf("%d ", arr[i]);
+    }
+    printf("\n");
+}
 
 int hillFnt(individual ind){
 
     int val = ind[0]; //tem q abstrair esse treco
     return (val > 500 ? 1000 - val : val); //haha ternário
+}
+//para o exemplo simples, a função de fitness será apenas uma 
+//normalização de variáveis x no intervalo [a-b] => n = (x-a)/(b-a) 
+void fitnessFnt(eval_ptr eval_fnt, individual pop[POP_SIZE]){
+
+    int ub = eval_fnt(pop[0]); //upper bound 
+    int lb = ub; //lower bound
+    fitness_score[0] = ub;
+
+
+    for(int i = 1; i < POP_SIZE; i++){
+        int fit = eval_fnt(pop[i]);
+        fitness_score[i] = fit;
+        if(fit > ub){
+            best_sol[0] = fit;
+            ub = fit;
+        }
+        else if(fit < lb)
+            lb = fit;
+    }
+
+    if(ub == lb){
+        printf("Solução encontrada: %d\n", ub);
+        exit(1);
+    } //menor e maior soluções são iguais (convergiu)
+
+    printf("[%d, %d]\n", lb, ub);
+    //normalização 
+    int range = ub - lb;
+    for(int i = 0; i < POP_SIZE; i++){
+        fitness_score[i] = (((fitness_score[i] - lb)*100)/(range));
+    }   
 }
 
 int main (int argc, char** argv){
@@ -55,6 +96,10 @@ int main (int argc, char** argv){
     for(int i = 0; i < POP_SIZE; i++){
         printf("ind: %d fnt: %d\n", pop[i][0], eval_fnt(pop[i]));
     }
+    fitness_ptr fitness_fnt = &fitnessFnt;
+    fitness_fnt(eval_fnt, pop);
+
+    printArr(fitness_score, POP_SIZE);
 
     return 0;
 }
