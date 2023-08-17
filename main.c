@@ -5,31 +5,26 @@
 
 /**
  * Passos do AG:
- * 1. Inicializar a populção
- * 2. Atribuir uma pontuação p/ cada indivíduo (fitness)
+ * 1. Inicializar a populcao
+ * 2. Atribuir uma pontuacap p/ cada individuo (fitness)
  * 3. Crossover (cruzamento)¹ 
  * 4. Selecionar os melhores
- * 5. rearranjar população
- * 6. retornar ao passo 2 até atingir a resposta satisfatória²
- * ¹ os indivíduos com melhor pontuação deve ter maior chance de cruzar
- * ² a resposta satisfatória pode não existir, porém na prática o algoritmo
+ * 5. rearranjar populacao
+ * 6. retornar ao passo 2 até atingir a resposta satisfatoria²
+ * ¹ os indivíduos com melhor pontuacao devem ter maiores chances de cruzar
+ * ² a resposta satisfatoria pode não existir, porem na pratica o algoritmo
  * deve ter a capacidade de halt para que sua resposta seja obtida.   
 */
 
-//para o exemplo inicial, consideramos uma função simples que altera a
-//função de fitness, a função é:
-
-// if(x <= 500) y = x;
-// else y = 1000 - x;
-
-#define GENE_NUM 1 //para o problema modelo o número de genes será 1 (uma variável)
-#define POP_SIZE 10 //população com 10 indivíduos
-#define MAXX 10000
-#define MUT_RATE 0.04 //taxa de mutação base = 10%
+#define GENE_NUM 1 //numero de genes (numero de variaveis da equacao)
+#define POP_SIZE 10 //populacao com 10 indivíduos
+#define GEN_NUM 100 //número de geracoes
+#define MAXX 10000 //maior número a ser gerado
+#define MUT_RATE 0.04 //taxa de mutacao base = 10%
 
 
-typedef float gene_t; //o gene será um int (tbd), talvez seja ruim usar isso
-typedef gene_t individual[GENE_NUM];
+typedef float gene_t; //o gene sera um float a principio, porem pode ser mudado
+typedef gene_t individual[GENE_NUM]; //os individuos da populacao sao um vetor de genes
 
 typedef gene_t (*eval_ptr) (individual); //ponteiro para função sendo analisada 
 typedef void (*fitness_ptr) (eval_ptr eval_fnt, individual[POP_SIZE]); //ponteiro para a função de fitness
@@ -61,8 +56,8 @@ int main (int argc, char** argv){
             pop[i][j] = rand()%MAXX + (rand()%MAXX)/MAXX;
     
     //2. fitness
-    // eval_ptr eval_fnt = &parabola;
-    eval_ptr eval_fnt = &hillFnt;
+    eval_ptr eval_fnt = &parabola;
+    // eval_ptr eval_fnt = &hillFnt;
     fitness_ptr fitness_fnt = &fitnessFnt;
 
     int t = 0;
@@ -122,12 +117,6 @@ void fitnessFnt(eval_ptr eval_fnt, individual pop[POP_SIZE]){
         else if(fit < lb)
             lb = fit;
     }
-
-    //normalização (atualmente não é necessária)
-    // if(ub == lb){
-    //     printf("Solução encontrada: %d\n", ub);
-    //     exit(1);
-    // } //menor e maior soluções são iguais (convergiu)
 
     int range = ub - lb + 1;
     for(int i = 0; i < POP_SIZE; i++){
