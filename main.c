@@ -27,20 +27,21 @@
 #define MAXX 10000
 #define MUT_RATE 0.04 //taxa de mutação base = 10%
 
-typedef int gene; //o gene será um int (tbd), talvez seja ruim usar isso
-typedef int individual[GENE_NUM];
 
-typedef int (*eval_ptr) (individual); //ponteiro para função sendo analisada 
+typedef float gene_t; //o gene será um int (tbd), talvez seja ruim usar isso
+typedef gene_t individual[GENE_NUM];
+
+typedef gene_t (*eval_ptr) (individual); //ponteiro para função sendo analisada 
 typedef void (*fitness_ptr) (eval_ptr eval_fnt, individual[POP_SIZE]); //ponteiro para a função de fitness
 
-int fitness_score[POP_SIZE]; //vetor de fitness
+gene_t fitness_score[POP_SIZE]; //vetor de fitness
 individual best_sol; //melhor solução armazenada de forma global
 
 void printArr(int* arr, int size);
 void printPop(individual* arr, int size);
 
-int hillFnt(individual ind);
-int parabola(individual ind);
+gene_t hillFnt(individual ind);
+gene_t parabola(individual ind);
 void fitnessFnt(eval_ptr eval_fnt, individual pop[POP_SIZE]);
 
 void elitistCrossover(individual pop[POP_SIZE]);
@@ -57,15 +58,15 @@ int main (int argc, char** argv){
     individual pop[POP_SIZE];
     for(int i = 0; i < POP_SIZE; i++)
         for(int j = 0; j < GENE_NUM; j++)
-            pop[i][j] = rand()%MAXX;
+            pop[i][j] = rand()%MAXX + (rand()%MAXX)/MAXX;
     
     //2. fitness
-    eval_ptr eval_fnt = &parabola;
-    // eval_ptr eval_fnt = &hillFnt;
+    // eval_ptr eval_fnt = &parabola;
+    eval_ptr eval_fnt = &hillFnt;
     fitness_ptr fitness_fnt = &fitnessFnt;
 
     int t = 0;
-    while(t < 500){
+    while(t < 100){
         fitness_fnt(eval_fnt, pop);
         //elitistCrossover(pop);
         tournamentCrossover(pop);
@@ -88,15 +89,15 @@ void printPop(individual* arr, int size){
     printf("\n");
 }
 
-int hillFnt(individual ind){
-    int val = ind[0]; //tem q abstrair esse treco
+gene_t hillFnt(individual ind){
+    gene_t val = ind[0]; //tem q abstrair esse treco
     return (val > 500 ? 1000 - val : val); //haha ternário
 }
 
 //obs: para usar a parabóla verifique se MAXX^2 <= RAND_MAX (MAXX <= 2^16) 
-int parabola(individual ind){
-    int val = ind[0]; //abstrair
-    int y = -val*val + 12*val + 8;
+gene_t parabola(individual ind){
+    gene_t val = ind[0]; //abstrair
+    gene_t y = -val*val + 12*val + 8;
     return y;
 }
 
@@ -112,7 +113,7 @@ void fitnessFnt(eval_ptr eval_fnt, individual pop[POP_SIZE]){
 
     //encontrar lb e ub, atribuir a pontuação relativa
     for(int i = 1; i < POP_SIZE; i++){
-        int fit = eval_fnt(pop[i]);
+        gene_t fit = eval_fnt(pop[i]);
         fitness_score[i] = fit;
         if(fit > ub){
             best_sol[0] = pop[i][0];
@@ -122,19 +123,18 @@ void fitnessFnt(eval_ptr eval_fnt, individual pop[POP_SIZE]){
             lb = fit;
     }
 
-    // //normalização (atualmente não é necessária)
+    //normalização (atualmente não é necessária)
     // if(ub == lb){
     //     printf("Solução encontrada: %d\n", ub);
     //     exit(1);
     // } //menor e maior soluções são iguais (convergiu)
 
-    // printf("[%d, %d]\n", lb, ub);
-    // int range = ub - lb + 1;
-    // for(int i = 0; i < POP_SIZE; i++){
-    //     fitness_score[i] = (((fitness_score[i] - lb)*100)/(range));
-    // } 
+    int range = ub - lb + 1;
+    for(int i = 0; i < POP_SIZE; i++){
+        fitness_score[i] = (((fitness_score[i] - lb)*100)/(range));
+    } 
 
-    printf("best sol = %d\n", best_sol[0]);  
+    printf("best sol = %.2f\n", best_sol[0]);  
 }
 
 void elitistCrossover(individual pop[POP_SIZE]){
