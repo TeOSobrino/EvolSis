@@ -18,9 +18,9 @@
 
 #define GENE_NUM 1 //numero de genes (numero de variaveis da equacao)
 #define POP_SIZE 10 //populacao com 10 indivíduos
-#define GEN_NUM 100 //número de geracoes
+#define GENERATION_NUM 100 //número de geracoes
 #define MAXX 10000 //maior número a ser gerado
-#define MUT_RATE 0.04 //taxa de mutacao base = 10%
+#define MUT_RATE 0.04 //taxa de mutacao base
 
 
 typedef float gene_t; //o gene sera um float a principio, porem pode ser mudado
@@ -29,18 +29,18 @@ typedef gene_t individual[GENE_NUM]; //os individuos da populacao sao um vetor d
 typedef gene_t (*eval_ptr) (individual); //ponteiro para função sendo analisada 
 typedef void (*fitness_ptr) (eval_ptr eval_fnt, individual[POP_SIZE]); //ponteiro para a função de fitness
 
-gene_t fitness_score[POP_SIZE]; //vetor de fitness
-individual best_sol; //melhor solução armazenada de forma global
+static gene_t fitness_score[POP_SIZE]; //vetor de fitness
+static individual best_sol; //melhor solução armazenada de forma global
 
-void printArr(int* arr, int size);
-void printPop(individual* arr, int size);
+void print_arr(int* arr, int size);
+void print_pop(individual* arr, int size);
 
-gene_t hillFnt(individual ind);
+gene_t hill_fnt(individual ind);
 gene_t parabola(individual ind);
-void fitnessFnt(eval_ptr eval_fnt, individual pop[POP_SIZE]);
+void fitness_fnt(eval_ptr eval_fnt, individual pop[POP_SIZE]);
 
-void elitistCrossover(individual pop[POP_SIZE]);
-void tournamentCrossover(individual pop[POP_SIZE]);
+void elitist_crossover(individual pop[POP_SIZE]);
+void tournament_crossover(individual pop[POP_SIZE]);
 
 int main (int argc, char** argv){
 
@@ -57,34 +57,34 @@ int main (int argc, char** argv){
     
     //2. fitness
     eval_ptr eval_fnt = &parabola;
-    // eval_ptr eval_fnt = &hillFnt;
-    fitness_ptr fitness_fnt = &fitnessFnt;
+    // eval_ptr eval_fnt = &hill_fnt;
+    fitness_ptr obj_fnt = &fitness_fnt;
 
     int t = 0;
-    while(t < 100){
-        fitness_fnt(eval_fnt, pop);
-        //elitistCrossover(pop);
-        tournamentCrossover(pop);
+    while(t < 500){
+        obj_fnt(eval_fnt, pop);
+        //elitist_crossover(pop);
+        tournament_crossover(pop);
         t++;
     }
     return 0;
 }
 
-void printArr(int* arr, int size){
+void print_arr(int* arr, int size){
     for(int i = 0; i < size; i++){
         printf("%d ", arr[i]);
     }
     printf("\n");
 }
 
-void printPop(individual* arr, int size){
+void print_pop(individual* arr, int size){
     for(int i = 0; i < size; i++){
         printf("%d ", arr[i][0]);
     }
     printf("\n");
 }
 
-gene_t hillFnt(individual ind){
+gene_t hill_fnt(individual ind){
     gene_t val = ind[0]; //tem q abstrair esse treco
     return (val > 500 ? 1000 - val : val); //haha ternário
 }
@@ -99,10 +99,10 @@ gene_t parabola(individual ind){
 //para o exemplo simples, a função de fitness será apenas uma 
 //normalização de variáveis x no intervalo [a-b] => n = (x-a)/(b-a) 
 //buscando o valor que maximiza a função.
-void fitnessFnt(eval_ptr eval_fnt, individual pop[POP_SIZE]){
+void fitness_fnt(eval_ptr eval_fnt, individual pop[POP_SIZE]){
 
-    int ub = eval_fnt(pop[0]); //upper bound 
-    int lb = ub; //lower bound
+    gene_t ub = eval_fnt(pop[0]); //upper bound 
+    gene_t lb = ub; //lower bound
     fitness_score[0] = ub;
     best_sol[0] = pop[0][0];
 
@@ -118,7 +118,8 @@ void fitnessFnt(eval_ptr eval_fnt, individual pop[POP_SIZE]){
             lb = fit;
     }
 
-    int range = ub - lb + 1;
+    //normalizacao (talvez seja desnecessária)
+    gene_t range = ub - lb + 1;
     for(int i = 0; i < POP_SIZE; i++){
         fitness_score[i] = (((fitness_score[i] - lb)*100)/(range));
     } 
@@ -126,7 +127,7 @@ void fitnessFnt(eval_ptr eval_fnt, individual pop[POP_SIZE]){
     printf("best sol = %.2f\n", best_sol[0]);  
 }
 
-void elitistCrossover(individual pop[POP_SIZE]){
+void elitist_crossover(individual pop[POP_SIZE]){
 
     individual new_pop[POP_SIZE];
     new_pop[0][0] = best_sol[0]; //precisa abstrair aqui também
@@ -150,7 +151,7 @@ void elitistCrossover(individual pop[POP_SIZE]){
     }
 }
 
-void tournamentCrossover(individual pop[POP_SIZE]){
+void tournament_crossover(individual pop[POP_SIZE]){
 
     individual new_pop[POP_SIZE];
     new_pop[0][0] = best_sol[0]; //precisa abstrair aqui também
