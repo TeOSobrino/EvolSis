@@ -1,10 +1,19 @@
 (coisas que quem mexer ve q precisa mudar)
 melhorar a funcao interface
-testar com funcao de 2+ variaveis
     implementar um crossover que nao faz apenas a media (ex com 2 genes):
         pai_1 = [a1, b1], pai_1 = [a2, b2], filho = [a1, b2] || [a2, b1]
     pensar no caso de numero impar de alelos (randomizar qual eh selecionado)
 implementar a mudanca na mutacao quando a melhor solucao repete por 5+ geracoes
 
 futuramente (perguntar pro simoes como faz)
-    implementar predador(es) e exticao em massa
+    implementar predador(es)
+    como melhorar os resultados
+    
+    qual a performance esperada do ag usando multiplas variáveis?
+    qual a relação entre espaço de busca e número de gerações*tam da população?
+    
+    ser melhor que chutar respostas é suficiente?
+    
+    k = (espaço_de_busca/(n_ger*tam_pop)) = 1 => mesma coisa que chutar soluções.
+    existe algum número mágico para avaliar o ag? consistência de soluções para
+    um ratio de k?
