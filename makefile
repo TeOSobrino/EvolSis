@@ -1,21 +1,25 @@
 CC = gcc
-FLAGS = -g -lm -Wall
-DEPS = ga.c
-BIN = main
+INCLUDES = include
+SOURCES = source/*.c
+BINARY = ./main
+PROG = main.c
+DFLAGS = -g3 -O0 -fsanitize=address -fstack-protector-all -fstack-clash-protection -fasynchronous-unwind-tables -D_FORTIFY_SOURCE=2
+FLAGS = -g -lm -march=native -O3
+VFLAGS = --show-leak-kinds=all --track-origins=yes --leak-check=full -s
 
+all:
+	@$(CC) -o $(BINARY) $(PROG) $(SOURCES) -I$(INCLUDES) $(FLAGS)
+run: 
+	@$(BINARY)
+valgrind: all clear 
+	valgrind $(VFLAGS) $(BINARY) 
+zip:
+	zip -r TI.zip main.c include source makefile
+clean:
+	rm $(BINARY); rm *.zip
 clear:
 	clear
-
-all: main
-
-main: ga.o main.c
-	@$(CC) ga.o main.c $(FLAGS) -o $(BIN) 
-
-ga.o: ga.c ga.h
-	@$(CC) $(FLAGS) -c ga.c -o ga.o 
-
-run:
-	./$(BIN)
-
-clean:
-	rm ga.o main
+debcompile: 
+	@$(CC) -o $(BINARY) $(PROG) $(SOURCES) -I$(INCLUDES) $(DFLAGS)
+debug: debcompile clear
+	$(BINARY)

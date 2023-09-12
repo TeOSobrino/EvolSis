@@ -40,12 +40,22 @@ gene_t senoid(individual ind){
     return y;
 }
 
+gene_t multi_dim(individual ind){
+        gene_t x = ind[0];
+        gene_t y = ind[1];
+
+        gene_t z = 5 - 2*(x*x + 5*y*y)+2*x;
+
+        return z;
+}
 
 int main(int argc, char** argv){
 
-    gene_t* best_s = interface("t", &hill_fnt);
+    gene_t* best_s = interface("e", &multi_dim);
 
-    printf("best sol: %.2f\n", best_s[0]);
+    printf("best fit: %.2f, best_sol = ", multi_dim(best_s));
+    individual_print(best_s);
+    printf("\n");
     
     free(best_s);
     
