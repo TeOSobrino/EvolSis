@@ -1,6 +1,6 @@
 #define GENE_NUM 3 // equal to the number of variables in the objective function
 #define POP_SIZE 50
-#define GENERATION_NUM 200
+#define GENERATION_NUM 50
 #define BASE_MUT_RATE 0.01
 #define MAX_MUT_RATE 0.64
 #define MAXX 10000        // initial pop starting range [-MAXX/2, MAXX/2]
@@ -29,8 +29,10 @@ typedef gene_t (*eval_ptr)(individual&); // objective function
 typedef void (*fitness_ptr)(eval_ptr eval_fnt, individual *,
                             individual&, int &, float &); // fitness
 
-typedef void (*crossover_ptr)(eval_ptr eval_fnt, individual *,
-                              individual&, float); // crossover
+typedef void (*crossover_ptr)(eval_ptr eval_fnt, individual&, individual&, individual&, float);
+
+typedef void (*selection_ptr)(crossover_ptr crossover_type, eval_ptr eval_fnt, individual *,
+                              individual&, float); // avg_crossover
 
 /**
  * @brief generates a random individual

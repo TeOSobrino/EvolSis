@@ -78,7 +78,7 @@ int main(int argc, char **argv)
 
     eval_ptr evalued_fnt = &wtf;
 
-    individual* best_s = interface("t", evalued_fnt);
+    individual* best_s = interface("t", "c", evalued_fnt);
 
     printf("best fit: %.3f, best_sol = ", evalued_fnt(*best_s));
     individual_print(*best_s);

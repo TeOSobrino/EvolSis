@@ -38,15 +38,9 @@ void fitness_fnt(eval_ptr eval_fnt, individual* pop,
     }
 
     //substitui os piores indivíduos pela média
-    for(int i = 0; i < POP_SIZE/20; i++){
+    for(int i = 0; i < SYNTH_FACTOR; i++){
         individual_cp(pop[POP_SIZE-(1+i)], synthetic);
     }
-
-    //substitui o pior indivíduo por um novo
-    individual replacer; 
-    individual_generate(replacer);
-    
-    individual_cp(pop[POP_SIZE-1], replacer);
 
     // metodo simoes da mutacao variavel -> primeiro busca o máximo no local
     // depois altera a taxa de mutacao dobrando
@@ -71,13 +65,13 @@ void fitness_fnt(eval_ptr eval_fnt, individual* pop,
 }
 
 /**
- * @brief crossover between two individuals
+ * @brief avg_crossover between two individuals
  *
  * @param parent_1
  * @param parent_2
  * @param new_ind offspring produced
  */
-void crossover(individual& parent_1, individual& parent_2, individual& new_ind,
+void avg_crossover(eval_ptr eval_fnt, individual& parent_1, individual& parent_2, individual& new_ind,
     float mut_rate)
 {
 
@@ -91,11 +85,39 @@ void crossover(individual& parent_1, individual& parent_2, individual& new_ind,
         ((gene_t)(rand() % MAXX) - (MAXX / 2)) * (gene_t)(mut_rate); // mutação
 }
 
+void central_pt_crossover(eval_ptr eval_fnt, individual& parent_1, individual& parent_2, individual& new_ind,
+    float mut_rate)
+{
+
+    int mutated_allele = rand() % GENE_NUM;
+    individual cand_1, cand_2;
+
+    int mid = (GENE_NUM-1)/2;
+
+    for (int i = 0; i <= mid; i++) {
+        cand_1.genes[i] = parent_2.genes[i];
+        cand_2.genes[i] = parent_1.genes[i];
+
+        cand_1.genes[mid+i] = parent_1.genes[mid+i];
+        cand_2.genes[mid+i] = parent_2.genes[mid+i];
+    }
+
+    if(eval_fnt(cand_1) > eval_fnt(cand_2)){
+        individual_cp(new_ind, cand_1);
+    } else {
+        individual_cp(new_ind, cand_2);
+    }
+
+    new_ind.genes[mutated_allele] +=
+        ((gene_t)(rand() % MAXX) - (MAXX / 2)) * (gene_t)(mut_rate); // mutação
+}
+
+
 /**
  * @brief mate all individuals with tournament in one side and the best in other
  * (not really a good idea, converges too fast, shouldn't be used)
  */
-void elitist_crossover(eval_ptr eval_fnt, individual* pop, 
+void elitist_selection(crossover_ptr crossover_type, eval_ptr eval_fnt, individual* pop, 
     individual& best_sol, float mut_rate)
 {
 
@@ -112,7 +134,7 @@ void elitist_crossover(eval_ptr eval_fnt, individual* pop,
         else
             mate = candidate_2;
 
-        crossover(best_sol, pop[mate], new_pop[i], mut_rate);
+        crossover_type(eval_fnt, best_sol, pop[mate], new_pop[i], mut_rate);
     }
 
     for (int i = 0; i < POP_SIZE; i++) {
@@ -122,7 +144,7 @@ void elitist_crossover(eval_ptr eval_fnt, individual* pop,
     individual_cp(pop[0], best_sol);
 }
 
-void strictly_elitist_crossover(eval_ptr eval_fnt, individual* pop, 
+void strictly_elitist_selection(crossover_ptr crossover_type, eval_ptr eval_fnt, individual* pop, 
      individual& best_sol, float mut_rate)
 {
 
@@ -132,7 +154,7 @@ void strictly_elitist_crossover(eval_ptr eval_fnt, individual* pop,
     individual new_ind;
 
     for (int i = 0; i < POP_SIZE; i++) {
-        crossover(best_sol, pop[i], new_pop[i], mut_rate);
+        crossover_type(eval_fnt, best_sol, pop[i], new_pop[i], mut_rate);
     }
 
     for (int i = 1; i < POP_SIZE; i++) {
@@ -142,7 +164,7 @@ void strictly_elitist_crossover(eval_ptr eval_fnt, individual* pop,
     individual_cp(pop[0], best_sol);
 }
 
-void tournament_crossover(eval_ptr eval_fnt, individual* pop, 
+void tournament_selection(crossover_ptr crossover_type, eval_ptr eval_fnt, individual* pop, 
      individual& best_sol, float mut_rate)
 {
 
@@ -167,7 +189,7 @@ void tournament_crossover(eval_ptr eval_fnt, individual* pop,
         else
             mate_2 = candidate_22;
 
-        crossover(pop[mate_1], pop[mate_2], new_pop[i], mut_rate);
+        crossover_type(eval_fnt, pop[mate_1], pop[mate_2], new_pop[i], mut_rate);
     }
 
     for (int i = 1; i < POP_SIZE; i++) {
@@ -177,7 +199,7 @@ void tournament_crossover(eval_ptr eval_fnt, individual* pop,
     individual_cp(pop[0], best_sol);
 }
 
-void wheel_crossover(individual* pop) {}
+void wheel_selection(individual* pop) {}
 
 void genocide(individual* pop)
 {
@@ -186,7 +208,7 @@ void genocide(individual* pop)
     }
 }
 
-individual *interface(const char* selection_type, eval_ptr obj_fnt)
+individual *interface(const char* selection, const char* crossover, eval_ptr obj_fnt)
 {
 
     individual best_sol;            // best solution
@@ -197,24 +219,36 @@ individual *interface(const char* selection_type, eval_ptr obj_fnt)
     individual* pop = (individual*) malloc(sizeof(individual) * POP_SIZE);       // population
     
     fitness_ptr eval_fnt = &fitness_fnt;
-    crossover_ptr crossover_type;
+    selection_ptr selection_type;
 
-    switch (selection_type[0]) {
+    switch (selection[0]) {
     case 't':
-        crossover_type = &tournament_crossover;
+        selection_type = &tournament_selection;
         break;
 
     case 'e':
-        crossover_type = &strictly_elitist_crossover;
+        selection_type = &strictly_elitist_selection;
         break;
     case 's':
-        crossover_type = &elitist_crossover;
+        selection_type = &elitist_selection;
         break;
     default:
-        printf("error: %c is not a valid crossover type\n", selection_type[0]);
+        printf("error: %c is not a valid selection type\n", selection[0]);
         exit(1);
     }
 
+    crossover_ptr crossover_type;
+    switch (crossover[0]) {
+    case 'a':
+        crossover_type = &avg_crossover;
+        break;
+    case 'c':
+        crossover_type = &central_pt_crossover;
+        break;
+    default:
+        printf("error: %c is not a valid crossover type\n", selection[0]);
+        exit(1);
+    }
     srand(time(0));
 
     for (int i = 0; i < POP_SIZE; i++) {
@@ -228,7 +262,7 @@ individual *interface(const char* selection_type, eval_ptr obj_fnt)
     int t = 0;
     while (t < GENERATION_NUM) {
         eval_fnt(obj_fnt, pop, best_sol, stall_num, mut_rate);
-        crossover_type(obj_fnt, pop, best_sol, mut_rate);
+        selection_type(crossover_type, obj_fnt, pop, best_sol, mut_rate);
         t++;
         gen_log_print(t, best_sol, obj_fnt, mut_rate);
 
