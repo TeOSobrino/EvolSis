@@ -12,10 +12,10 @@
     (POP_SIZE / 20) // # of individuals to be replaced by synthesis
 #define TEMPERATURE 50 //used in entropy-boltzmann selection
 
-#define THREAD_NUM 2
-#define ISLAND_NUM 4
-#define BASE_EXCHANGE_RATE 0.05 
-#define EXCHANGE_IND_NUM POP_SIZE*BASE_EXCHANGE_RATE
+#define THREAD_NUM 2 //number of threads in calculating the obj_fnt
+#define ISLAND_NUM 4 //not yet modifiable
+#define BASE_EXCHANGE_RATE 0.05 //not yet modifiable
+#define EXCHANGE_IND_NUM POP_SIZE*BASE_EXCHANGE_RATE //not yet modifiable
 
 #define PRINT       // if defined will print a log in each generation
 
