@@ -5,21 +5,27 @@
 #include <time.h>
 #include <unistd.h>
 
-#include <utility>
 #include <algorithm>
 #include <functional>
+#include <random>
+#include <utility>
 
 #include "aux.h"
 
-void individual_generate(individual& ind)
+void individual_generate(individual &ind)
 {
+    std::random_device rd;
+    std::mt19937 gen(rd());
+
+    std::uniform_real_distribution<> d(-MAX, MAX);
+
     for (int i = 0; i < GENE_NUM; i++) {
-        ind.genes[i] = (((gene_t)rand() / (gene_t)(INT32_MAX)) * (gene_t)MAX) -
-                 ((gene_t)(MAX) / 2.0f);
+        ind.genes[i] = (((gene_t)d(gen) / (gene_t)(INT32_MAX)) * (gene_t)MAX) -
+                       ((gene_t)(MAX) / 2.0f);
     }
 }
 
-void individual_cp(individual& target, individual& source)
+void individual_cp(individual &target, individual &source)
 {
 
     for (int i = 0; i < GENE_NUM; i++) {
@@ -28,7 +34,7 @@ void individual_cp(individual& target, individual& source)
     target.fitness = source.fitness;
 }
 
-void population_cp(individual* target_pop, individual* source_pop)
+void population_cp(individual *target_pop, individual *source_pop)
 {
 
     for (int i = 0; i < POP_SIZE; i++) {
@@ -39,16 +45,15 @@ void population_cp(individual* target_pop, individual* source_pop)
 void individual_print(individual ind)
 {
     printf("(");
-    for (int i = 0; i <= GENE_NUM - 1; i++) {
+    for (int i = 0; i < GENE_NUM - 1; i++) {
         printf("%f, ", ind.genes[i]);
     }
-    printf(")");
+    printf("%f)", ind.genes[GENE_NUM-1]);
 }
 
-
-void sort_by_fitness(individual* pop, int size)
+void sort_by_fitness(individual *pop, int size)
 {
-    std::sort(pop, pop+size, std::greater<individual>());
+    std::sort(pop, pop + size, std::greater<individual>());
 }
 
 #ifdef PRINT
@@ -71,10 +76,10 @@ void gen_log_print(int time, individual ind, eval_ptr obj_fnt, float mut_rate)
 
 #else
 
-void population_print(individual ind[POP_SIZE]) 
-{}
+void population_print(individual ind[POP_SIZE]) {}
 
-void gen_log_print(int time, individual ind, eval_ptr obj_fnt, float mut_rate) 
-{}
+void gen_log_print(int time, individual ind, eval_ptr obj_fnt, float mut_rate)
+{
+}
 
 #endif

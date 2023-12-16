@@ -3,22 +3,26 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/ipc.h>
+#include <sys/shm.h>
 #include <time.h>
 #include <unistd.h>
 
 #include <algorithm>
+#include <iostream>
 #include <numeric>
 #include <random>
 #include <utility>
 #include <vector>
 
 #include "ga.h"
+#include "parallel.h"
 
-typedef struct{
+typedef struct {
     int first;
     int second;
 
-}m_int_pair;
+} m_int_pair;
 
 void fitness_normalize(individual *pop)
 {
@@ -34,16 +38,17 @@ void fitness_normalize(individual *pop)
     }
 }
 
-void fitness_fnt(eval_ptr eval_fnt, individual *pop, individual &best_sol,
+
+void fitness_fnt(eval_ptr obj_fnt, individual *pop, individual &best_sol,
                  int &stall_num, float &mut_rate)
 {
 
     char best_changed = 0;
-    gene_t best_fit = eval_fnt(best_sol);
+    gene_t best_fit = obj_fnt(best_sol);
     individual synthetic;
 
     for (int i = 0; i < POP_SIZE; i++) {
-        pop[i].fitness = eval_fnt(pop[i]);
+        pop[i].fitness = obj_fnt(pop[i]);
         if (i <= POP_SIZE - SYNTH_FACTOR) {
             for (int j = 0; j < GENE_NUM; j++) {
                 synthetic.genes[j] += (pop[i].genes[j] / POP_SIZE);
@@ -56,40 +61,22 @@ void fitness_fnt(eval_ptr eval_fnt, individual *pop, individual &best_sol,
     if (pop[0].fitness > best_sol.fitness) {
         individual_cp(best_sol, pop[0]);
         best_changed = 1;
+    } else{
+        individual_cp(pop[POP_SIZE-1], best_sol);
     }
 
-    synthetic.fitness = eval_fnt(synthetic);
+    synthetic.fitness = obj_fnt(synthetic);
     // replace the worst individuals for the average
     for (int i = 0; i < SYNTH_FACTOR; i++) {
-        individual_cp(pop[POP_SIZE - (1 + i)], synthetic);
+        individual_cp(pop[POP_SIZE - (2 + i)], synthetic);
     }
 
     // start by decreasing mutation rate -> search for local optimal, only then
     // increase mutation rate, looking for global optimal
-    if (!best_changed) {
-
-        if (++stall_num == STALL_MAX) {
-            mut_rate /= 2;
-        } else if (stall_num == 2 * STALL_MAX) {
-            mut_rate /= 2;
-        } else if (mut_rate >= MAX_MUT_RATE) {
-            mut_rate = BASE_MUT_RATE;
-            stall_num = 0;
-        } else if (stall_num == 3 * STALL_MAX) {
-            mut_rate *= 8;
-        } else if (stall_num > 3 * STALL_MAX) {
-            mut_rate *= 2;
-        }
-    } else {
-        mut_rate = BASE_MUT_RATE;
-        stall_num = 0;
-    }
-    if (mut_rate > MAX_MUT_RATE) {
-        mut_rate = MAX_MUT_RATE;
-    }
+    update_mut_rate(best_changed, stall_num, mut_rate);
 }
 
-void avg_crossover(eval_ptr eval_fnt, individual &parent_1,
+void avg_crossover(eval_ptr obj_fnt, individual &parent_1,
                    individual &parent_2, individual &new_ind, float mut_rate)
 {
 
@@ -103,7 +90,7 @@ void avg_crossover(eval_ptr eval_fnt, individual &parent_1,
         ((gene_t)(rand() % MAX) - (MAX / 2)) * (gene_t)(mut_rate); // mutation
 }
 
-void central_pt_crossover(eval_ptr eval_fnt, individual &parent_1,
+void central_pt_crossover(eval_ptr obj_fnt, individual &parent_1,
                           individual &parent_2, individual &new_ind,
                           float mut_rate)
 {
@@ -120,7 +107,7 @@ void central_pt_crossover(eval_ptr eval_fnt, individual &parent_1,
         cand_2.genes[mid + i] = parent_2.genes[mid + i];
     }
 
-    if (eval_fnt(cand_1) > eval_fnt(cand_2)) {
+    if (obj_fnt(cand_1) > obj_fnt(cand_2)) {
         individual_cp(new_ind, cand_1);
     } else {
         individual_cp(new_ind, cand_2);
@@ -130,7 +117,7 @@ void central_pt_crossover(eval_ptr eval_fnt, individual &parent_1,
         ((gene_t)(rand() % MAX) - (MAX / 2)) * (gene_t)(mut_rate); // mutation
 }
 
-void elitist_selection(crossover_ptr crossover_type, eval_ptr eval_fnt,
+void elitist_selection(crossover_ptr crossover_type, eval_ptr obj_fnt,
                        individual *pop, individual &best_sol, float mut_rate)
 {
 
@@ -147,7 +134,7 @@ void elitist_selection(crossover_ptr crossover_type, eval_ptr eval_fnt,
         else
             mate = candidate_2;
 
-        crossover_type(eval_fnt, best_sol, pop[mate], new_pop[i], mut_rate);
+        crossover_type(obj_fnt, best_sol, pop[mate], new_pop[i], mut_rate);
     }
 
     for (int i = 0; i < POP_SIZE; i++) {
@@ -157,7 +144,7 @@ void elitist_selection(crossover_ptr crossover_type, eval_ptr eval_fnt,
     individual_cp(pop[0], best_sol);
 }
 
-void strictly_elitist_selection(crossover_ptr crossover_type, eval_ptr eval_fnt,
+void strictly_elitist_selection(crossover_ptr crossover_type, eval_ptr obj_fnt,
                                 individual *pop, individual &best_sol,
                                 float mut_rate)
 {
@@ -168,14 +155,14 @@ void strictly_elitist_selection(crossover_ptr crossover_type, eval_ptr eval_fnt,
     individual new_ind;
 
     for (int i = 0; i < POP_SIZE; i++) {
-        crossover_type(eval_fnt, best_sol, pop[i], new_pop[i], mut_rate);
+        crossover_type(obj_fnt, best_sol, pop[i], new_pop[i], mut_rate);
     }
 
     population_cp(pop, new_pop);
     individual_cp(pop[0], best_sol);
 }
 
-void tournament_selection(crossover_ptr crossover_type, eval_ptr eval_fnt,
+void tournament_selection(crossover_ptr crossover_type, eval_ptr obj_fnt,
                           individual *pop, individual &best_sol, float mut_rate)
 {
 
@@ -200,28 +187,26 @@ void tournament_selection(crossover_ptr crossover_type, eval_ptr eval_fnt,
         else
             mate_2 = candidate_22;
 
-        crossover_type(eval_fnt, pop[mate_1], pop[mate_2], new_pop[i],
+        crossover_type(obj_fnt, pop[mate_1], pop[mate_2], new_pop[i],
                        mut_rate);
     }
 
     // population_cp(pop, new_pop);
     for (int i = 0; i < POP_SIZE; i++) {
-        if (pop[i].fitness < eval_fnt(new_pop[i])) {
+        if (pop[i].fitness < obj_fnt(new_pop[i])) {
             individual_cp(pop[i], new_pop[i]);
         }
     }
     individual_cp(pop[0], best_sol);
 }
 
-m_int_pair* prob_select(individual *pop, float& mate_1_p, float& mate_2_p)
+m_int_pair *prob_select(individual *pop, float &mate_1_p, float &mate_2_p)
 {
     int j = 0;
     int mate_1 = -1;
     int mate_2 = -1;
 
-    printf("m1p = %f, m2p = %f\n", mate_1_p, mate_2_p);
-
-    while ((mate_1_p > 0 || mate_2_p > 0) && j < POP_SIZE-1) {
+    while ((mate_1_p > 0 || mate_2_p > 0) && j < POP_SIZE - 1) {
         if (mate_1_p > 0) {
             mate_1_p -= pop[j].fitness;
         } else {
@@ -252,7 +237,7 @@ m_int_pair* prob_select(individual *pop, float& mate_1_p, float& mate_2_p)
     if (mate_2 == -1)
         mate_2 = j;
 
-    m_int_pair* p = (m_int_pair*) malloc(sizeof(m_int_pair));
+    m_int_pair *p = (m_int_pair *)malloc(sizeof(m_int_pair));
     p->first = mate_1;
     p->second = mate_2;
 
@@ -260,7 +245,7 @@ m_int_pair* prob_select(individual *pop, float& mate_1_p, float& mate_2_p)
 }
 
 void entropy_boltzmann_selection(crossover_ptr crossover_type,
-                                 eval_ptr eval_fnt, individual *pop,
+                                 eval_ptr obj_fnt, individual *pop,
                                  individual &best_sol, float mut_rate)
 {
     fitness_normalize(pop);
@@ -268,13 +253,13 @@ void entropy_boltzmann_selection(crossover_ptr crossover_type,
     for (int i = 0; i < POP_SIZE; i++) {
         acc += pop[i].fitness;
     }
-    
+
     std::random_device rd;
     std::mt19937 gen(rd());
 
     double k = M_PI * ((double)2.0 / (double)(pop[POP_SIZE / 2].fitness));
     acc /= k;
-    
+
     std::exponential_distribution<> d(k);
 
     individual new_pop[POP_SIZE];
@@ -282,13 +267,12 @@ void entropy_boltzmann_selection(crossover_ptr crossover_type,
         float mate_1_p = d(gen) * acc;
         float mate_2_p = d(gen) * acc;
 
-        m_int_pair* p = prob_select(pop, mate_1_p, mate_2_p);
+        m_int_pair *p = prob_select(pop, mate_1_p, mate_2_p);
 
         int mate_1 = p->first;
         int mate_2 = p->second;
 
-        printf("m_1 = %d, m_2 = %d\n", mate_1, mate_2);
-        crossover_type(eval_fnt, pop[mate_1], pop[mate_2], new_pop[i],
+        crossover_type(obj_fnt, pop[mate_1], pop[mate_2], new_pop[i],
                        mut_rate);
     }
 
@@ -296,7 +280,7 @@ void entropy_boltzmann_selection(crossover_ptr crossover_type,
     individual_cp(new_pop[0], best_sol);
 }
 
-void wheel_selection(crossover_ptr crossover_type, eval_ptr eval_fnt,
+void wheel_selection(crossover_ptr crossover_type, eval_ptr obj_fnt,
                      individual *pop, individual &best_sol, float mut_rate)
 {
     sort_by_fitness(pop, POP_SIZE);
@@ -309,54 +293,17 @@ void wheel_selection(crossover_ptr crossover_type, eval_ptr eval_fnt,
 
     individual new_pop[POP_SIZE];
     for (int i = 0; i < POP_SIZE; i++) {
-        
+
         float r_1 = 0, r_2 = 0;
         r_1 = ((double)rand() / (double)(RAND_MAX)) * acc;
         r_2 = ((double)rand() / (double)(RAND_MAX)) * acc;
 
-        m_int_pair* p = prob_select(pop, r_1, r_2);
+        m_int_pair *p = prob_select(pop, r_1, r_2);
 
         int mate_1 = p->first;
         int mate_2 = p->second;
 
-        // int j = 0;
-        // int mate_1 = -1;
-        // int mate_2 = -1;
-
-        // while (r_1 > 0 || r_2 > 0) {
-        //     if (r_1 > 0) {
-        //         r_1 -= pop[j].fitness;
-        //     } else {
-        //         mate_1 = j;
-        //         while (r_2 > 0) {
-        //             r_2 -= pop[j].fitness;
-        //             j++;
-        //         }
-        //         mate_2 = j;
-        //         break;
-        //     }
-        //     if (r_2 > 0) {
-        //         r_2 -= pop[j].fitness;
-        //     } else {
-        //         mate_2 = j;
-        //         while (r_1 > 0) {
-        //             r_1 -= pop[j].fitness;
-        //             j++;
-        //         }
-        //         mate_1 = j;
-        //         break;
-        //     }
-        //     j++;
-        // }
-
-        // if (mate_1 == -1)
-        //     mate_1 = j;
-        // if (mate_2 == -1)
-        //     mate_2 = j;
-
-        // individual new_ind;
-
-        crossover_type(eval_fnt, pop[mate_1], pop[mate_2], new_pop[i],
+        crossover_type(obj_fnt, pop[mate_1], pop[mate_2], new_pop[i],
                        mut_rate);
     }
 
@@ -366,7 +313,7 @@ void wheel_selection(crossover_ptr crossover_type, eval_ptr eval_fnt,
 
 void genocide(individual *pop)
 {
-    for (int i = 0; i < POP_SIZE; i++) {
+    for (int i = 5; i < POP_SIZE; i++) {
         individual_generate(pop[i]);
     }
 }
@@ -383,7 +330,7 @@ individual *interface(const char *selection, const char *crossover,
     individual *pop =
         (individual *)malloc(sizeof(individual) * POP_SIZE); // population
 
-    fitness_ptr eval_fnt = &fitness_fnt;
+    fitness_ptr fitness_fnt = &parallel_fitness_fnt;
     selection_ptr selection_type;
 
     switch (selection[0]) {
@@ -431,9 +378,28 @@ individual *interface(const char *selection, const char *crossover,
         best_sol.genes[i] = INT32_MIN;
     }
 
+    // canonical_ga(obj_fnt, crossover_type, fitness_fnt, selection_type, pop,
+    //              best_sol, stall_num, mut_rate);
+
+    island_ga(obj_fnt, crossover_type, fitness_fnt, selection_type, pop,
+                 best_sol, stall_num, mut_rate);
+
+    individual *solve = (individual *)malloc(sizeof(individual) * GENE_NUM);
+    individual_cp(*solve, best_sol);
+
+    free(pop);
+
+    return solve;
+}
+
+void canonical_ga(eval_ptr obj_fnt, crossover_ptr crossover_type,
+                  fitness_ptr fitness_fnt, selection_ptr selection_type,
+                  individual *pop, individual &best_sol, int stall_num,
+                  float mut_rate)
+{
     int t = 0;
     while (t < GENERATION_NUM || (stall_num < 3.5 * STALL_MAX)) {
-        eval_fnt(obj_fnt, pop, best_sol, stall_num, mut_rate);
+        fitness_fnt(obj_fnt, pop, best_sol, stall_num, mut_rate);
         selection_type(crossover_type, obj_fnt, pop, best_sol, mut_rate);
         t++;
         gen_log_print(t, best_sol, obj_fnt, mut_rate);
@@ -442,8 +408,4 @@ individual *interface(const char *selection, const char *crossover,
         if (t % GENOCIDE_TIME == 0)
             genocide(pop);
     }
-
-    individual *solve = (individual *)malloc(sizeof(individual) * GENE_NUM);
-    individual_cp(*solve, best_sol);
-    return solve;
 }
