@@ -1,5 +1,22 @@
 
-# Genetic Algorithm using Island Method #
+# Genetic Algorithm for quadricopter Control #
+
+## Motivation ##
+
+Quadricopters are unstable systems, landing, takeoff and maneuverability are 
+challenges from the physics point of view. Several mathematical models try to
+solve this issue, we have chosen XXX model, that incrporates the YYY matrices
+the aplication of genetic algorithm is to find the ideal weights for the matrices
+in order to make the drone's control easier.
+
+## Matrices ##
+
+picture of matrices and explain (briefly) control theory behind
+
+## Feedback loop ##
+
+Explain feedback loop (each individual will be tested and given a fitness based on it's actions 
+and capabilities), explain how fitness is atributed. (modify requirements if needed) (maybe we will need cmake)
 
 ## What is a genetic algorithm? ##
 
@@ -111,7 +128,7 @@ ensure that each thread will not override other thread individuals.
 for Ubuntu:
 
 ``` bash
-sudo apt-get install -y g++ make 
+sudo apt-get install -y g++ make cmake
 sudo apt install -y libboost-all-dev
 ```
 
