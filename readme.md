@@ -1,5 +1,5 @@
 
-# Genetic Algorithm for quadricopter Control #
+# Genetic Algorithm for quadcopter Control #
 
 ## Motivation ##
 
