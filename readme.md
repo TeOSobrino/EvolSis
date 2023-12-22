@@ -109,8 +109,8 @@ In file `` main.cpp `` include your objective function, and follow the pattern a
 ### Variable mutation rate ###
 
 If the best individual in the population is the same for a significant amount of
-generations, the mutation rate will first be decreased (searching for local optima)
-the increased (searching for global optima), seeking to leave the current location
+generations, mutation rate will first be decreased (searching for local optima)
+then increased (searching for global optima), seeking to leave the current location
 as it may be a saddle point.
 
 ### Predation by sinthesys ###
