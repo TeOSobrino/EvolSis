@@ -18,6 +18,8 @@ picture of matrices and explain (briefly) control theory behind
 Explain feedback loop (each individual will be tested and given a fitness based on it's actions 
 and capabilities), explain how fitness is atributed. (modify requirements if needed) (maybe we will need cmake)
 
+# Genetic Algorithm #
+
 ## What is a genetic algorithm? ##
 
 A genetic algorithm is a program that aims to find the global maxima or minima
