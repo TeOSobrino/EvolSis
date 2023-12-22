@@ -65,7 +65,7 @@ and aiming for a better final solution.
 ### Theory ###
 
 This program is a genetic algorithm that aims to maximize a function.
-It also enables parallelism for calcuting the objective function, in the file
+It also enables parallelism for calcuting the objective function (parallelism in evaluation), in the file
 `` aux.h `` set the `` THREAD NUM `` parameter to the number of threads desired
 (if the function being analyzed is very expensive, this can help, but if the
 function is simple, the overhead will delay the total execution time).
