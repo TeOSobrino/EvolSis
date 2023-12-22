@@ -95,6 +95,9 @@ In pratice, most parameters (number of individuals,
 generations, islands, threads, etc)
 and are `` #defines `` that can be modified in file `` include/aux.h ``.
 
+The new population always replace the old one
+The best solution is always preserved
+
 #### To run your own function ####
 
 The `` GENE_NUM `` parameter represents the number of variables.
