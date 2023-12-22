@@ -378,9 +378,6 @@ individual *interface(const char *selection, const char *crossover,
         best_sol.genes[i] = INT32_MIN;
     }
 
-    // canonical_ga(obj_fnt, crossover_type, fitness_fnt, selection_type, pop,
-    //              best_sol, stall_num, mut_rate);
-
     island_ga(obj_fnt, crossover_type, fitness_fnt, selection_type, pop,
                  best_sol, stall_num, mut_rate);
 
@@ -398,7 +395,7 @@ void canonical_ga(eval_ptr obj_fnt, crossover_ptr crossover_type,
                   float mut_rate)
 {
     int t = 0;
-    while (t < GENERATION_NUM || (stall_num < 3.5 * STALL_MAX)) {
+    while (t < GENERATION_NUM) {
         fitness_fnt(obj_fnt, pop, best_sol, stall_num, mut_rate);
         selection_type(crossover_type, obj_fnt, pop, best_sol, mut_rate);
         t++;

@@ -25,7 +25,9 @@ ensure that the population can explore the solution space.
 Then the algorithm returns to selection step, repeating until a satisfactory
 answer is found (or time requirements are met).
 
-![alt text](https://github.com/TeOSobrino/EvolSis/blob/main/imgs/ag.jpg?raw=true)
+<p align="center">
+   <img src=https://github.com/TeOSobrino/EvolSis/blob/main/imgs/ag.jpg?raw=true/>
+</p>
 
 # Island Method #
 
@@ -41,9 +43,11 @@ and aiming for a better final solution.
 
 ## summary ##
 
+### Theory ###
+
 This program is a genetic algorithm that aims to maximize a function.
 It also enables parallelism for calcuting the objective function, in the file
-``aux.h`` set the ``THREAD NUM`` parameter to the number of threads desired
+`` aux.h `` set the `` THREAD NUM `` parameter to the number of threads desired
 (if the function being analyzed is very expensive, this can help, but if the
 function is simple, the overhead will delay the total execution time).
 
@@ -61,16 +65,41 @@ difference between selection techniques and how fast they converge, e.g. elitist
 crossover (all individuals mate with the best) or entropy-boltzmann, where each
 individual gets a probability assigned by the exponential distribution:
 
-$$p(f) = e^{\dfrac{-2\pi f}{T}}$$
+$$p(f) = e^{\tfrac{-2\pi f}{T}}$$
 
 where $f$ is the individual fitness, $T$ the temperature, a parameter that
 increases the evolutive pressure (increases elitism).
 
-## How to use this with your own objective function ##
+### Practice ###
 
-In file  ``include/aux.h``  set ``GENE_NUM`` parameter to the number of variables,
-then in file ``main.cpp`` include your objective function, and follow the pattern adding
-``individual.fitness = calculated_val`` before returning.
+In pratice, most parameters (number of individuals,
+generations, islands, threads, etc)
+and are `` #defines `` that can be modified in file `` include/aux.h ``.
+
+#### To run your own function ####
+
+The `` GENE_NUM `` parameter represents the number of variables.
+In file `` main.cpp `` include your objective function, and follow the pattern adding
+`` individual.fitness = calculated_val `` before returning.
+
+## Techniques used ##
+
+### Variable mutation rate ###
+
+If the best individual in the population is the same for a significant amount of
+generations, the mutation rate will first be decreased (searching for local optima)
+the increased (searching for global optima), seeking to leave the current location
+as it may be a saddle point.
+
+### Predation by sinthesys ###
+
+In each generation the worst individuals are replaced by the population mean,
+excluding thoose individuals.
+
+### Genocide ###
+
+In a determined period genocide will happen, eliminating all individuals and
+leaving only the best solution behind, effectivelly resetting the population.
 
 ## How to Run ##
 

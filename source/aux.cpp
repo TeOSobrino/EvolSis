@@ -7,6 +7,8 @@
 
 #include <algorithm>
 #include <functional>
+#include <iostream>
+#include <iomanip>
 #include <random>
 #include <utility>
 
@@ -44,11 +46,11 @@ void population_cp(individual *target_pop, individual *source_pop)
 
 void individual_print(individual ind)
 {
-    printf("(");
+    std::cout << "(";
     for (int i = 0; i < GENE_NUM - 1; i++) {
-        printf("%f, ", ind.genes[i]);
+        std::cout << ind.genes[i] << ", ";
     }
-    printf("%f)", ind.genes[GENE_NUM-1]);
+    std::cout << ind.genes[GENE_NUM-1] << ")";
 }
 
 void sort_by_fitness(individual *pop, int size)
@@ -63,15 +65,15 @@ void population_print(individual ind[POP_SIZE])
     for (int i = 0; i < POP_SIZE; i++) {
         individual_print(ind[i]);
     }
-    printf("\n");
+    std::cout << "\n";
 }
 
 void gen_log_print(int time, individual ind, eval_ptr obj_fnt, float mut_rate)
 {
 
-    printf("t = %d, best fit = %.2f, best sol = ", time, obj_fnt(ind));
+    std::cout << std::setprecision(4) << "t = " << time << ", best fit = " << obj_fnt(ind) <<", best sol = ";
     individual_print(ind);
-    printf(" mut = %.4f\n", mut_rate);
+    std::cout << std::setprecision(4) << " mut = " << mut_rate << "\n";
 }
 
 #else

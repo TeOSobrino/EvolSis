@@ -101,7 +101,7 @@ void island_method(eval_ptr obj_fnt, crossover_ptr crossover_type,
     }
 
     int t = 0;
-    while (t < GENERATION_NUM || (stall_num < 3.5 * STALL_MAX)) {
+    while (t < GENERATION_NUM) {
         fitness_fnt(obj_fnt, pop, best_sol, stall_num, mut_rate);
         selection_type(crossover_type, obj_fnt, pop, best_sol, mut_rate);
         t++;
@@ -128,13 +128,14 @@ void island_ga(eval_ptr obj_fnt, crossover_ptr crossover_type,
     std::vector<std::thread> v;
     std::vector<individual *> best;
 
+    
     std::thread t1(island_method, obj_fnt, &avg_crossover, fitness_fnt,
-                   &entropy_boltzmann_selection, stall_num, mut_rate, &best);
-    std::thread t2(island_method, obj_fnt, &avg_crossover, fitness_fnt,
                    &tournament_selection, stall_num, mut_rate, &best);
+    std::thread t2(island_method, obj_fnt, &avg_crossover, fitness_fnt,
+                   &entropy_boltzmann_selection, stall_num, mut_rate, &best);
     std::thread t3(island_method, obj_fnt, &central_pt_crossover, fitness_fnt,
                    &wheel_selection, stall_num, mut_rate, &best);
-    std::thread t4(island_method, obj_fnt, &central_pt_crossover, fitness_fnt,
+    std::thread t4(island_method, obj_fnt, &avg_crossover, fitness_fnt,
                    &elitist_selection, stall_num, mut_rate, &best);
 
     t1.join();
@@ -142,10 +143,10 @@ void island_ga(eval_ptr obj_fnt, crossover_ptr crossover_type,
     t3.join();
     t4.join();
 
-    std::cout << "size: " << best.size() << std::endl;
     best_sol = *(best[0]);
     printf("Final solutions in Each Island: ");
     for (individual *i : best) {
+        std::cout << "\n";
         individual_print(*i);
         printf(" ");
         if (i->fitness > best_sol.fitness) {
@@ -156,26 +157,3 @@ void island_ga(eval_ptr obj_fnt, crossover_ptr crossover_type,
 
     shared_memory_object::remove("SHMM");
 }
-
-/*
-    para cada thread:
-        escrever os r = POP/EXCHANGE_RATE melhores indivíduos na shmem
-        ler os r melhores das outras threads e substituir os (n-1)*r piores
-        problema 1: uma thread deve esperar as outras concluírem? i.é:
-            uma thread só continua a mutar e evoluir quando outra thread escreve
-            o seu conteúdo, ou a thread pode ler o que está escrito e trocar
-            os piores indivíduos por aqueles já escritos?
-        Sol proposta: Se as threads forem preemptadas para escrita e leitura em
-        momentos diferentes e com certa frequência não haverá muita diferença,
-        garantir que, quando o número de gerações está acabando, há mais troca.
-        usar um id em cada thread, que garante que a troca ocorre em ger%id
-        usar primos entre si para cada thread.
-
-    para eliminar race conditions, uma thread irá acessar a região, ler os dados
-    lá contidos, e escrever seus dados, usando apenas um semáforo binário
-    -> definir um tipo de id para cada thread, para que seja calculado o offset
-    e não sobrescrever os dados de memória de uma outra thread (mudar a melhor
-    solução de outra thread).
-
-
-    */
