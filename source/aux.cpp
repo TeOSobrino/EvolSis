@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <functional>
 #include <iostream>
+#include <fstream>
 #include <iomanip>
 #include <random>
 #include <utility>
@@ -56,6 +57,11 @@ void individual_print(individual ind)
 void sort_by_fitness(individual *pop, int size)
 {
     std::sort(pop, pop + size, std::greater<individual>());
+}
+
+void file_print_individual(individual ind, int time, std::ofstream file){
+
+    file << time << "," << ind.fitness << "\n";
 }
 
 #ifdef PRINT

@@ -1,9 +1,10 @@
 #pragma once
+#include <fstream>
 
 #define GENE_NUM 3 // equal to the number of variables in the objective function
 #define POP_SIZE 100
 #define GENERATION_NUM 400
-#define BASE_MUT_RATE 0.01 // starting mutation rate
+#define BASE_MUT_RATE 0.02 // starting mutation rate
 #define MAX_MUT_RATE 0.64  // max mutation rate
 #define MAX 1000          // initial pop starting range [-MAX, MAX]
 #define GENOCIDE_TIME 200  // no idea which time would be optimal
@@ -98,6 +99,8 @@ inline void update_mut_rate(char &best_changed, int &stall_num, float &mut_rate)
         mut_rate = 1.0;
     }
 }
+
+void file_print_individual(individual ind, int time, std::ofstream file);
 
 /**
  * @brief prints an individual

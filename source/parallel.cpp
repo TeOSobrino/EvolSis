@@ -2,11 +2,13 @@
 #include <sys/shm.h>
 
 #include <atomic>
+#include <array>
 #include <boost/interprocess/mapped_region.hpp>
 #include <boost/interprocess/shared_memory_object.hpp>
 #include <iostream>
 #include <thread>
 #include <vector>
+
 
 #include "aux.h"
 #include "ga.h"
@@ -85,7 +87,7 @@ void parallel_fitness_fnt(eval_ptr obj_fnt, individual *pop,
 void island_method(eval_ptr obj_fnt, crossover_ptr crossover_type,
                    fitness_ptr fitness_fnt, selection_ptr selection_type,
                    int stall_num, float mut_rate,
-                   std::vector<individual *> *best)
+                   std::vector<individual *> *best, int id)
 {
     individual *b_s = (individual *)malloc(sizeof(individual));
     individual best_sol;
@@ -101,7 +103,7 @@ void island_method(eval_ptr obj_fnt, crossover_ptr crossover_type,
     }
 
     int t = 0;
-    while (t < GENERATION_NUM) {
+    while (t < GENERATION_NUM || stall_num <= 3.5*STALL_MAX) {
         fitness_fnt(obj_fnt, pop, best_sol, stall_num, mut_rate);
         selection_type(crossover_type, obj_fnt, pop, best_sol, mut_rate);
         t++;
@@ -128,15 +130,15 @@ void island_ga(eval_ptr obj_fnt, crossover_ptr crossover_type,
     std::vector<std::thread> v;
     std::vector<individual *> best;
 
-    
+    int id = 1;
     std::thread t1(island_method, obj_fnt, &avg_crossover, fitness_fnt,
-                   &tournament_selection, stall_num, mut_rate, &best);
+                   &tournament_selection, stall_num, mut_rate, &best, id++);
     std::thread t2(island_method, obj_fnt, &avg_crossover, fitness_fnt,
-                   &entropy_boltzmann_selection, stall_num, mut_rate, &best);
+                   &entropy_boltzmann_selection, stall_num, mut_rate, &best, id++);
     std::thread t3(island_method, obj_fnt, &central_pt_crossover, fitness_fnt,
-                   &wheel_selection, stall_num, mut_rate, &best);
+                   &wheel_selection, stall_num, mut_rate, &best, id++);
     std::thread t4(island_method, obj_fnt, &avg_crossover, fitness_fnt,
-                   &elitist_selection, stall_num, mut_rate, &best);
+                   &elitist_selection, stall_num, mut_rate, &best, id++);
 
     t1.join();
     t2.join();
@@ -144,11 +146,11 @@ void island_ga(eval_ptr obj_fnt, crossover_ptr crossover_type,
     t4.join();
 
     best_sol = *(best[0]);
-    printf("Final solutions in Each Island: ");
+    std::cout << ("Final solutions in Each Island: ");
     for (individual *i : best) {
         std::cout << "\n";
         individual_print(*i);
-        printf(" ");
+        std::cout << " fitness: " << i->fitness <<" ";
         if (i->fitness > best_sol.fitness) {
             best_sol = *i;
         }

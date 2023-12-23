@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <unistd.h>
-
+#include <iostream>
 
 gene_t hill_fnt(individual& ind)
 {
@@ -73,6 +73,11 @@ int main(int argc, char **argv)
     printf("\n");
 
     free(best_s);
+
+    std::string s = "python3 ./source/pyplot.py ";
+    s += std::to_string(ISLAND_NUM);
+    if(system(s.c_str()))
+        std::cout << "error printing" << "\n";
 
     return 0;
 }
