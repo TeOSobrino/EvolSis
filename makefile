@@ -22,7 +22,7 @@ valgrind: all clear
 zip:
 	zip -r TI.zip main.c include source makefile
 clean:
-	rm $(BINARY); rm *.zip
+	rm -f $(BINARY); rm -f *.zip
 clear:
 	clear
 debcompile: 
