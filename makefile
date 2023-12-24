@@ -16,7 +16,7 @@ VFLAGS = --show-leak-kinds=all --track-origins=yes --leak-check=full -s
 all:
 	@$(CC) -o $(BINARY) $(PROG) $(SOURCES) -I$(INCLUDES) $(CFLAGS)
 run: 
-	@$(BINARY)
+	@$(BINARY) ./source/pyplot.py
 valgrind: all clear 
 	valgrind $(VFLAGS) $(BINARY) 
 zip:

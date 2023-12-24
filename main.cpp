@@ -61,9 +61,12 @@ gene_t wtf(individual& ind)
     return k;
 }
 
-int main(int argc, char **argv)
+int main(int argc, char *argv[])
 {
-
+    if( argc < 2 ) {
+        std::cout << "Insuficient number of arguments!\n";
+    }
+    std::cout << argv[1] << std::endl;
     eval_ptr evalued_fnt = &wtf;
 
     individual* best_s = interface("b", "c", evalued_fnt);
@@ -74,7 +77,8 @@ int main(int argc, char **argv)
 
     free(best_s);
 
-    std::string s = "python3 ./source/pyplot.py ";
+    std::string s = std::string("python3 ") + std::string(argv[1]);
+    s += std::string(" ");
     s += std::to_string(ISLAND_NUM);
     if(system(s.c_str()))
         std::cout << "error printing" << "\n";
