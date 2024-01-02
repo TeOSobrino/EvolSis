@@ -23,6 +23,7 @@
                 makeWrapper
                 gnumake
                 boost
+                eigen
             ];
             buildInputs = with pkgs; [
                 python3                

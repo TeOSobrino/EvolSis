@@ -1,24 +1,25 @@
 #pragma once
 #include <fstream>
+#include <memory>
 
-#define GENE_NUM 3 // equal to the number of variables in the objective function
-#define POP_SIZE 100
-#define GENERATION_NUM 400
+#define GENE_NUM 40 // equal to the number of variables in the objective function
+#define POP_SIZE 10000
+#define GENERATION_NUM 10000
 #define BASE_MUT_RATE 0.02 // starting mutation rate
 #define MAX_MUT_RATE 0.64  // max mutation rate
-#define MAX 1000          // initial pop starting range [-MAX, MAX]
+#define MAX 1            // initial pop starting range [-MAX, MAX]
 #define GENOCIDE_TIME 200  // no idea which time would be optimal
 #define STALL_MAX 10 // number of generations that best individual can't change
 #define SYNTH_FACTOR                                                           \
     (POP_SIZE / 20) // # of individuals to be replaced by synthesis
 #define TEMPERATURE 50 //used in entropy-boltzmann selection
 
-#define THREAD_NUM 2 //number of threads in calculating the obj_fnt
+#define THREAD_NUM 20 //number of threads in calculating the obj_fnt
 #define ISLAND_NUM 4 //not yet modifiable
 #define BASE_EXCHANGE_RATE 0.05 //not yet modifiable
 #define EXCHANGE_IND_NUM POP_SIZE*BASE_EXCHANGE_RATE //not yet modifiable
 
-#define PRINT       // if defined will print a log in each generation
+//#define PRINT       // if defined will print a log in each generation
 
 typedef float gene_t; // gene type can be changed, double can cause bloat
 
@@ -56,7 +57,7 @@ void individual_cp(individual &target, individual &source);
 /**
  * @brief copies the entire population from source to target
  */
-void population_cp(individual* target_pop, individual* source_pop);
+void population_cp(individual* target_pop, std::shared_ptr<individual[]> source_pop);
 
 void sort_by_fitness(individual *pop, int size);
 

@@ -7,5 +7,6 @@
     # Setting zsh as the dafault shell
     shellHook = ''
         export SHELL=${pkgs.zsh}/bin/zsh
+        zsh
     '';
 }

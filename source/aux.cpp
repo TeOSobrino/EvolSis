@@ -23,8 +23,7 @@ void individual_generate(individual &ind)
     std::uniform_real_distribution<> d(-MAX, MAX);
 
     for (int i = 0; i < GENE_NUM; i++) {
-        ind.genes[i] = (((gene_t)d(gen) / (gene_t)(INT32_MAX)) * (gene_t)MAX) -
-                       ((gene_t)(MAX) / 2.0f);
+        ind.genes[i] = (((gene_t)d(gen)));
     }
 }
 
@@ -37,21 +36,12 @@ void individual_cp(individual &target, individual &source)
     target.fitness = source.fitness;
 }
 
-void population_cp(individual *target_pop, individual *source_pop)
+void population_cp(individual *target_pop, std::shared_ptr<individual[]> source_pop)
 {
 
     for (int i = 0; i < POP_SIZE; i++) {
         individual_cp(target_pop[i], source_pop[i]);
     }
-}
-
-void individual_print(individual ind)
-{
-    std::cout << "(";
-    for (int i = 0; i < GENE_NUM - 1; i++) {
-        std::cout << ind.genes[i] << ", ";
-    }
-    std::cout << ind.genes[GENE_NUM-1] << ")";
 }
 
 void sort_by_fitness(individual *pop, int size)
@@ -65,6 +55,17 @@ void file_print_individual(individual ind, int time, std::ofstream file){
 }
 
 #ifdef PRINT
+
+void individual_print(individual ind)
+{
+    std::cout << "(";
+    for (int i = 0; i < GENE_NUM - 1; i++) {
+        std::cout << ind.genes[i] << ", ";
+    }
+    std::cout << ind.genes[GENE_NUM-1] << ")";
+}
+
+
 
 void population_print(individual ind[POP_SIZE])
 {
@@ -89,5 +90,5 @@ void population_print(individual ind[POP_SIZE]) {}
 void gen_log_print(int time, individual ind, eval_ptr obj_fnt, float mut_rate)
 {
 }
-
+void individual_print(individual ind) {}
 #endif

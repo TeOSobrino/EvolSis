@@ -14,6 +14,7 @@
 #include <random>
 #include <utility>
 #include <vector>
+#include <memory>
 
 #include "ga.h"
 #include "parallel.h"
@@ -114,14 +115,15 @@ void central_pt_crossover(eval_ptr obj_fnt, individual &parent_1,
     }
 
     new_ind.genes[mutated_allele] +=
-        ((gene_t)(rand() % MAX) - (MAX / 2)) * (gene_t)(mut_rate); // mutation
+        ((gene_t)(rand() % MAX) - (MAX / 2)) * 0.1 * (gene_t)(mut_rate); // mutation
 }
 
 void elitist_selection(crossover_ptr crossover_type, eval_ptr obj_fnt,
                        individual *pop, individual &best_sol, float mut_rate)
 {
 
-    individual new_pop[POP_SIZE];
+    //individual new_pop[POP_SIZE]; 
+    std::shared_ptr<individual[]> new_pop(new individual[POP_SIZE]);
     individual_cp(new_pop[0], best_sol);
 
     for (int i = 1; i < POP_SIZE; i++) {
@@ -149,7 +151,8 @@ void strictly_elitist_selection(crossover_ptr crossover_type, eval_ptr obj_fnt,
                                 float mut_rate)
 {
 
-    individual new_pop[POP_SIZE];
+    //individual new_pop[POP_SIZE];
+    std::shared_ptr<individual[]> new_pop(new individual[POP_SIZE]);
     individual_cp(new_pop[0], best_sol);
 
     individual new_ind;
@@ -166,8 +169,9 @@ void tournament_selection(crossover_ptr crossover_type, eval_ptr obj_fnt,
                           individual *pop, individual &best_sol, float mut_rate)
 {
 
-    individual new_pop[POP_SIZE];
-
+    //individual new_pop[POP_SIZE];
+    std::shared_ptr<individual[]> new_pop(new individual[POP_SIZE]);
+    
     for (int i = 0; i < POP_SIZE; i++) {
         int candidate_11 = rand() % (POP_SIZE);
         int candidate_21 = rand() % (POP_SIZE);
@@ -262,7 +266,8 @@ void entropy_boltzmann_selection(crossover_ptr crossover_type,
 
     std::exponential_distribution<> d(k);
 
-    individual new_pop[POP_SIZE];
+    //individual new_pop[POP_SIZE];
+    std::shared_ptr<individual[]> new_pop(new individual[POP_SIZE]);
     for (int i = 0; i < POP_SIZE; i++) {
         float mate_1_p = d(gen) * acc;
         float mate_2_p = d(gen) * acc;
@@ -291,7 +296,8 @@ void wheel_selection(crossover_ptr crossover_type, eval_ptr obj_fnt,
         acc += pop[i].fitness;
     }
 
-    individual new_pop[POP_SIZE];
+    std::shared_ptr<individual[]> new_pop(new individual[POP_SIZE]);
+    //individual new_pop[POP_SIZE];
     for (int i = 0; i < POP_SIZE; i++) {
 
         float r_1 = 0, r_2 = 0;

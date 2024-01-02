@@ -66,9 +66,9 @@ void parallel_fitness_fnt(eval_ptr obj_fnt, individual *pop,
     // if (obj_fnt(pop[0]) > obj_fnt(best_sol)) {
     if (pop[0].fitness > best_sol.fitness) {
 
-        printf("best changed! %lf > %lf ", pop[0].fitness, obj_fnt(best_sol));
+        //printf("best changed! %lf > %lf ", pop[0].fitness, obj_fnt(best_sol));
         individual_print(pop[0]);
-        printf("\n");
+        //printf("\n");
         individual_cp(best_sol, pop[0]);
         best_changed = 1;
     }
