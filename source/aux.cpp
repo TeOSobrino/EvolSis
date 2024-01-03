@@ -75,7 +75,7 @@ void population_print(individual ind[POP_SIZE])
     std::cout << "\n";
 }
 
-void gen_log_print(int time, individual ind, eval_ptr obj_fnt, float mut_rate)
+void gen_log_print(int time, individual ind, eval_ptr obj_fnt, double mut_rate)
 {
 
     std::cout << std::setprecision(4) << "t = " << time << ", best fit = " << obj_fnt(ind) <<", best sol = ";
@@ -87,7 +87,7 @@ void gen_log_print(int time, individual ind, eval_ptr obj_fnt, float mut_rate)
 
 void population_print(individual ind[POP_SIZE]) {}
 
-void gen_log_print(int time, individual ind, eval_ptr obj_fnt, float mut_rate)
+void gen_log_print(int time, individual ind, eval_ptr obj_fnt, double mut_rate)
 {
 }
 void individual_print(individual ind) {}

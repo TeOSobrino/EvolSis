@@ -9,11 +9,11 @@
  * @param new_ind offspring produced
  */
 void avg_crossover(eval_ptr obj_fnt, individual &parent_1,
-                   individual &parent_2, individual &new_ind, float mut_rate);
+                   individual &parent_2, individual &new_ind, double mut_rate);
 
 void central_pt_crossover(eval_ptr obj_fnt, individual &parent_1,
                           individual &parent_2, individual &new_ind,
-                          float mut_rate);
+                          double mut_rate);
 /**
  @brief evaluates the population fitness, saving the best solution
  * change mutation rate if needed, and substitute worst individuals
@@ -23,21 +23,21 @@ void central_pt_crossover(eval_ptr obj_fnt, individual &parent_1,
  * @param pop population
 */
 void fitness_fnt(eval_ptr obj_fnt, individual *pop, individual &best_sol,
-                 int &stall_num, float &mut_rate);
+                 int &stall_num, double &mut_rate);
 
 /**
  * @brief mate all individuals with tournament in one side and the best in other
  * (not really a good idea, converges too fast, shouldn't be used)
  */
 void elitist_selection(crossover_ptr crossover_type, eval_ptr obj_fnt,
-                       individual *pop, individual &best_sol, float mut_rate);
+                       individual *pop, individual &best_sol, double mut_rate);
 
 /**
  * @brief mate all (other) individuals with the best individual
  */
 void strictly_elitist_selection(crossover_ptr crossover_type, eval_ptr obj_fnt,
                                 individual *pop, individual &best_sol,
-                                float mut_rate);
+                                double mut_rate);
 
 /**
  * @brief mates two individuals, choose each parent based on it's fitness after
@@ -45,14 +45,14 @@ void strictly_elitist_selection(crossover_ptr crossover_type, eval_ptr obj_fnt,
  */
 void tournament_selection(crossover_ptr crossover_type, eval_ptr obj_fnt,
                           individual *pop, individual &best_sol,
-                          float mut_rate);
+                          double mut_rate);
 
 void entropy_boltzmann_selection(crossover_ptr crossover_type,
                                  eval_ptr obj_fnt, individual *pop,
-                                 individual &best_sol, float mut_rate);
+                                 individual &best_sol, double mut_rate);
 
 void wheel_selection(crossover_ptr crossover_type, eval_ptr obj_fnt,
-                     individual *pop, individual &best_sol, float mut_rate);
+                     individual *pop, individual &best_sol, double mut_rate);
 
 void genocide(individual *pop);
 
@@ -71,7 +71,7 @@ void genocide(individual *pop);
 void canonical_ga(eval_ptr obj_fnt, crossover_ptr crossover_type,
                   fitness_ptr fitness_fnt, selection_ptr selection_type,
                   individual *pop, individual &best_sol, int stall_num,
-                  float mut_rate);
+                  double mut_rate);
 
 /**
  * @brief basic interface as an example solver

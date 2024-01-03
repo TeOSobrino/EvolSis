@@ -41,7 +41,7 @@ void fitness_normalize(individual *pop)
 
 
 void fitness_fnt(eval_ptr obj_fnt, individual *pop, individual &best_sol,
-                 int &stall_num, float &mut_rate)
+                 int &stall_num, double &mut_rate)
 {
 
     char best_changed = 0;
@@ -78,7 +78,7 @@ void fitness_fnt(eval_ptr obj_fnt, individual *pop, individual &best_sol,
 }
 
 void avg_crossover(eval_ptr obj_fnt, individual &parent_1,
-                   individual &parent_2, individual &new_ind, float mut_rate)
+                   individual &parent_2, individual &new_ind, double mut_rate)
 {
 
     int mutated_allele = rand() % GENE_NUM;
@@ -93,7 +93,7 @@ void avg_crossover(eval_ptr obj_fnt, individual &parent_1,
 
 void central_pt_crossover(eval_ptr obj_fnt, individual &parent_1,
                           individual &parent_2, individual &new_ind,
-                          float mut_rate)
+                          double mut_rate)
 {
     int mutated_allele = rand() % GENE_NUM;
     individual cand_1, cand_2;
@@ -119,7 +119,7 @@ void central_pt_crossover(eval_ptr obj_fnt, individual &parent_1,
 }
 
 void elitist_selection(crossover_ptr crossover_type, eval_ptr obj_fnt,
-                       individual *pop, individual &best_sol, float mut_rate)
+                       individual *pop, individual &best_sol, double mut_rate)
 {
 
     //individual new_pop[POP_SIZE]; 
@@ -148,7 +148,7 @@ void elitist_selection(crossover_ptr crossover_type, eval_ptr obj_fnt,
 
 void strictly_elitist_selection(crossover_ptr crossover_type, eval_ptr obj_fnt,
                                 individual *pop, individual &best_sol,
-                                float mut_rate)
+                                double mut_rate)
 {
 
     //individual new_pop[POP_SIZE];
@@ -166,7 +166,7 @@ void strictly_elitist_selection(crossover_ptr crossover_type, eval_ptr obj_fnt,
 }
 
 void tournament_selection(crossover_ptr crossover_type, eval_ptr obj_fnt,
-                          individual *pop, individual &best_sol, float mut_rate)
+                          individual *pop, individual &best_sol, double mut_rate)
 {
 
     //individual new_pop[POP_SIZE];
@@ -204,7 +204,7 @@ void tournament_selection(crossover_ptr crossover_type, eval_ptr obj_fnt,
     individual_cp(pop[0], best_sol);
 }
 
-m_int_pair *prob_select(individual *pop, float &mate_1_p, float &mate_2_p)
+m_int_pair *prob_select(individual *pop, double &mate_1_p, double &mate_2_p)
 {
     int j = 0;
     int mate_1 = -1;
@@ -250,7 +250,7 @@ m_int_pair *prob_select(individual *pop, float &mate_1_p, float &mate_2_p)
 
 void entropy_boltzmann_selection(crossover_ptr crossover_type,
                                  eval_ptr obj_fnt, individual *pop,
-                                 individual &best_sol, float mut_rate)
+                                 individual &best_sol, double mut_rate)
 {
     fitness_normalize(pop);
     double acc = 0.0;
@@ -269,8 +269,8 @@ void entropy_boltzmann_selection(crossover_ptr crossover_type,
     //individual new_pop[POP_SIZE];
     std::shared_ptr<individual[]> new_pop(new individual[POP_SIZE]);
     for (int i = 0; i < POP_SIZE; i++) {
-        float mate_1_p = d(gen) * acc;
-        float mate_2_p = d(gen) * acc;
+        double mate_1_p = d(gen) * acc;
+        double mate_2_p = d(gen) * acc;
 
         m_int_pair *p = prob_select(pop, mate_1_p, mate_2_p);
 
@@ -286,7 +286,7 @@ void entropy_boltzmann_selection(crossover_ptr crossover_type,
 }
 
 void wheel_selection(crossover_ptr crossover_type, eval_ptr obj_fnt,
-                     individual *pop, individual &best_sol, float mut_rate)
+                     individual *pop, individual &best_sol, double mut_rate)
 {
     sort_by_fitness(pop, POP_SIZE);
     fitness_normalize(pop);
@@ -300,7 +300,7 @@ void wheel_selection(crossover_ptr crossover_type, eval_ptr obj_fnt,
     //individual new_pop[POP_SIZE];
     for (int i = 0; i < POP_SIZE; i++) {
 
-        float r_1 = 0, r_2 = 0;
+        double r_1 = 0, r_2 = 0;
         r_1 = ((double)rand() / (double)(RAND_MAX)) * acc;
         r_2 = ((double)rand() / (double)(RAND_MAX)) * acc;
 
@@ -330,7 +330,7 @@ individual *interface(const char *selection, const char *crossover,
 
     individual best_sol;            // best solution
     individual best_last_sol;       // best solution of last generation
-    float mut_rate = BASE_MUT_RATE; // starting mutation rate
+    double mut_rate = BASE_MUT_RATE; // starting mutation rate
     int stall_num = 0; // number of generations since best solution changed
 
     individual *pop =
@@ -398,7 +398,7 @@ individual *interface(const char *selection, const char *crossover,
 void canonical_ga(eval_ptr obj_fnt, crossover_ptr crossover_type,
                   fitness_ptr fitness_fnt, selection_ptr selection_type,
                   individual *pop, individual &best_sol, int stall_num,
-                  float mut_rate)
+                  double mut_rate)
 {
     int t = 0;
     while (t < GENERATION_NUM) {

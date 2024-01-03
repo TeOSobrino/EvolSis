@@ -111,7 +111,7 @@ gene_t cost_functional2(individual& ind)
         x_horiz.col(i + 1) = A * x_horiz.col(i) + B * u_best.col(i);
         sum += (x_horiz.col(i).transpose() * Q * x_horiz.col(i) + u_best.col(i).transpose() * R * u_best.col(i)).norm(); 
     }    
-    ind.fitness = 1 / sum; 
+    ind.fitness = 100000 / sum; 
 
    // Possibility to add constraints
    // TO DO...
@@ -179,7 +179,7 @@ int main(int argc, char *argv[])
         std::cout << "Insuficient number of arguments!\n";
     }
     std::cout << argv[1] << std::endl;
-    //eval_ptr evalued_fnt = &wtf;
+    // eval_ptr evalued_fnt = &wtf;
     eval_ptr evalued_fnt = &cost_functional2;
     
     A << 1.0000000, 0.0000000, 0.0000000, 0.0000000, 0.0245250, 0.0000000, 0.0500000, 0.0000000, 0.0000000, 0.0000000, 0.0002044, 0.0000000,
@@ -233,7 +233,7 @@ int main(int argc, char *argv[])
         }
         x_state.col(iteration + 1) = A * x_state.col(iteration) + B * u_control.col(iteration);
         std::cout << "next x: " << x_state.col(iteration + 1) << std::endl; 
-        //printf("best fit: %.3f, best_sol = ", evalued_fnt(*best_s));
+        //printf("best fit: %lf3f, best_sol = ", evalued_fnt(*best_s));
         //individual_print(*best_s);         
         iteration++;
     }
@@ -254,7 +254,7 @@ int main(int argc, char *argv[])
         // Calculates the next state with the optimal control signal
         x_state.col(iteration + 1) = A * x_state.col(iteration) + B * u_control.col(iteration);
         std::cout << "next x: " << x_state.col(iteration + 1) << std::endl; 
-        //printf("best fit: %.3f, best_sol = ", evalued_fnt(*best_s));
+        //printf("best fit: %lf3f, best_sol = ", evalued_fnt(*best_s));
         //individual_print(*best_s);
         
         free(best_s);
@@ -311,7 +311,7 @@ int main(int argc, char *argv[])
     controlFile.close();
     //individual* best_s = interface("b", "c", evalued_fnt);
 
-    //printf("best fit: %.3f, best_sol = ", evalued_fnt(*best_s));
+    //printf("best fit: %lf3f, best_sol = ", evalued_fnt(*best_s));
     //individual_print(*best_s);
     //printf("\n");
 
