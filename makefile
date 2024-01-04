@@ -57,7 +57,7 @@ clear:
 	clear
 
 debcompile: 
-	@$(CC) -o $(TARGET_EXECUTABLE) $(PROG) $(SOURCES) -I$(INCLUDES) $(DFLAGS)
+	@$(CC) -o $(TARGET_EXECUTABLE) $(MAIN) $(SOURCES) -I$(INCLUDES) $(DFLAGS)
 
 debug: debcompile clear
 	 $(BUILD_DIRECTORY)/$(TARGET_EXECUTABLE)
