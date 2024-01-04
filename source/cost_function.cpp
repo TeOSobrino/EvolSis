@@ -1,10 +1,6 @@
 
 #include "cost_function.hpp"
 
-// Definindo a matriz R e Q
-Eigen::Matrix<gene_t, CONTROL_DIMENSION, CONTROL_DIMENSION> R;
-Eigen::Matrix<gene_t, STATE_DIMENSION, STATE_DIMENSION> Q;
-
 gene_t cost_functional(individual& ind)
 {
     // Implementação da função cost_functional2
