@@ -13,7 +13,7 @@
 #include <random>
 #include <utility>
 
-#include "aux.h"
+#include <aux.hpp>
 
 void individual_generate(individual &ind)
 {

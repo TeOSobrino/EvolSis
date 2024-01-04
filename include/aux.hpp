@@ -19,6 +19,13 @@
 #define BASE_EXCHANGE_RATE 0.05 //not yet modifiable
 #define EXCHANGE_IND_NUM POP_SIZE*BASE_EXCHANGE_RATE //not yet modifiable
 
+/* Control parameters */
+#define STATE_DIMENSION 12
+#define CONTROL_DIMENSION 4
+#define MAX_ITERATIONS 100
+#define PREDICTIVE_HORIZON 100
+#define CONTROL_HORIZON 10 
+
 //#define PRINT       // if defined will print a log in each generation
 
 typedef double gene_t; // gene type can be changed, double can cause bloat

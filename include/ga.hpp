@@ -1,5 +1,5 @@
 #pragma once
-#include "aux.h"
+#include <aux.hpp>
 #include <stdio.h>
 /**
  * @brief avg_crossover between two individuals

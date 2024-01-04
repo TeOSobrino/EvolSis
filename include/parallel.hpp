@@ -1,4 +1,6 @@
 #pragma once
+#include <aux.hpp>
+#include <ga.hpp>
 
 void parallel_fitness_fnt(eval_ptr obj_fnt, individual *pop,
                           individual &best_sol, int &stall_num,

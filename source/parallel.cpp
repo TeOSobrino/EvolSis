@@ -9,9 +9,7 @@
 #include <thread>
 #include <vector>
 
-#include "aux.h"
-#include "ga.h"
-#include "parallel.h"
+#include <parallel.hpp>
 
 void partial_fitness_calculate(eval_ptr obj_fnt, individual *pop,
                                individual *synthetic, int lo, int hi)

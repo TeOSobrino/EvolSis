@@ -16,8 +16,8 @@
 #include <vector>
 #include <memory>
 
-#include "ga.h"
-#include "parallel.h"
+#include <ga.hpp>
+#include <parallel.hpp>
 
 typedef struct {
     int first;
