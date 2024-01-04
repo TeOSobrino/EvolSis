@@ -1,9 +1,12 @@
 
 #include "cost_function.hpp"
 
+Eigen::Matrix<gene_t, CONTROL_DIMENSION, CONTROL_DIMENSION> R;
+Eigen::Matrix<gene_t, STATE_DIMENSION, STATE_DIMENSION> Q;
+
 gene_t cost_functional(individual& ind)
 {
-    // Implementação da função cost_functional2
+    // Implementação da função cost_functional
     Eigen::Map<Eigen::Matrix<gene_t, CONTROL_DIMENSION, CONTROL_HORIZON>> u_map(ind.genes);
     Eigen::Matrix<gene_t, CONTROL_DIMENSION, Eigen::Dynamic> u_best(CONTROL_DIMENSION, PREDICTIVE_HORIZON);
     Eigen::Matrix<gene_t, STATE_DIMENSION, PREDICTIVE_HORIZON + 1> x_horiz;

@@ -7,9 +7,8 @@
 #include "quadrotor.hpp"
 #include <eigen3/Eigen/Dense>
 
-// Definindo a matriz R e Q
-Eigen::Matrix<gene_t, CONTROL_DIMENSION, CONTROL_DIMENSION> R;
-Eigen::Matrix<gene_t, STATE_DIMENSION, STATE_DIMENSION> Q;
+extern Eigen::Matrix<gene_t, CONTROL_DIMENSION, CONTROL_DIMENSION> R;
+extern Eigen::Matrix<gene_t, STATE_DIMENSION, STATE_DIMENSION> Q;
 
 gene_t cost_functional(individual& ind);
 
