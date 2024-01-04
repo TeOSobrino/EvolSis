@@ -1,4 +1,5 @@
 #include <ga.hpp>
+#include "cost_function.hpp"
 #include <math.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -7,50 +8,14 @@
 #include <unistd.h>
 #include <iostream>
 #include <eigen3/Eigen/Dense>
-#include <fstream>
-#include <rodriguez.hpp>
-#include <quadrotor.hpp>
-
-
-Eigen::Matrix<gene_t, CONTROL_DIMENSION, CONTROL_DIMENSION> R;
-Eigen::Matrix<gene_t, STATE_DIMENSION, STATE_DIMENSION> Q;
+#include <fstream> 
 
 Quadrotor* Quadrotor::instance = NULL; 
-
-gene_t cost_functional2(individual& ind)
-{
-    // Convert the C-style array to an Eigen column vector
-    Eigen::Map<Eigen::Matrix<gene_t, CONTROL_DIMENSION, CONTROL_HORIZON>> u_map(ind.genes);
-    Eigen::Matrix<gene_t, CONTROL_DIMENSION, Eigen::Dynamic> u_best(CONTROL_DIMENSION, PREDICTIVE_HORIZON);
-    Eigen::Matrix<gene_t, STATE_DIMENSION, PREDICTIVE_HORIZON + 1> x_horiz;
-    
-    u_best.setZero();
-    u_best.leftCols(CONTROL_HORIZON) = u_map;
-    
-    Quadrotor* drone = Quadrotor::get_instance();
-
-    x_horiz.col(0) = drone->get_curr_state(); 
-    gene_t sum = 0.0;
-    
-    //Quadrotor drone;
-
-    for(int i = 0; i < PREDICTIVE_HORIZON; i++) {
-        x_horiz.col(i + 1) = drone->control_law(x_horiz.col(i), u_best.col(i));
-        sum += (x_horiz.col(i + 1).transpose() * Q * x_horiz.col(i + 1) + u_best.col(i).transpose() * R * u_best.col(i)).norm(); 
-    }    
-    
-    ind.fitness = 100000 / sum; 
-
-   // Possibility to add constraints
-   // TO DO...
-
-    return ind.fitness;
-}
 
 int main(int argc, char *argv[])
 {
     // eval_ptr evalued_fnt = &wtf;
-    eval_ptr evalued_fnt = &cost_functional2;
+    eval_ptr evalued_fnt = &cost_functional;
      
    Q.diagonal() << 100.0000000, 100.0000000, 100.0000000, 4.0000000, 4.0000000, 400.0000000, 4.0000000, 4.0000000, 4.0000000, 2.0408163, 2.0408163, 4.0000000;
    //Q.diagonal() << 10.0000000, 10.0000000, 10.0000000, 1000.0000000, 1000.0000000, 1000.0000000, 100.0000000, 100.0000000, 100.0000000, 10000.0000000, 10000.0000000, 10000.0000000;
