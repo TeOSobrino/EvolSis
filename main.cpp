@@ -9,6 +9,7 @@
 #include <iostream>
 #include <eigen3/Eigen/Dense>
 #include <fstream> 
+#include<control_plots.hpp>
 
 Quadrotor* Quadrotor::instance = NULL; 
 
@@ -67,57 +68,19 @@ int main(int argc, char *argv[])
         
         free(best_s);
     }*/
-    std::cout << std::endl << x_state << std::endl;
-    std::cout << std::endl << u_control << std::endl;
+    //std::cout << std::endl << x_state << std::endl;
+    //std::cout << std::endl << u_control << std::endl;
 
-     // Write state data to a CSV file
-    std::ofstream stateFile("build/state.csv");
-    //stateFile << "x,y,z,phi,theta,psi,dx,dy,dz,dphi,dtheta,dpsi\n"; // Header
-    stateFile << "x,y,z,yaw,pitch,roll,dx,dy,dz,dyaw,dpitch,droll\n"; // Header 
-    for(int i = 0; i < MAX_ITERATIONS ; i++) {
-        
-    // Convert Rodrigues vector to quaternion
-    Quaternion q = RodriguesToQuaternion(x_state.col(i).row(3).norm(), x_state.col(i).row(4).norm(), x_state.col(i).row(5).norm());
-    Quaternion dq = RodriguesToQuaternion(x_state.col(i).row(9).norm(), x_state.col(i).row(10).norm(), x_state.col(i).row(11).norm());
+    std::string state_file("state");
+    std::string state_header("x, y, z, phi, theta, psi, dx, dy, dz, dphi, dtheta, dpsi");
 
-    // Convert quaternion to rotation matrix
-    RotationMatrix R = QuaternionToRotationMatrix(q);
-    RotationMatrix dR = QuaternionToRotationMatrix(dq);
+    write_data2csvfile<gene_t, STATE_DIMENSION, MAX_ITERATIONS + 1>(state_file, x_state, state_header);
 
-    // Convert rotation matrix to Euler angles (roll, pitch, yaw)
-    EulerAngles eulerAngles = RotationMatrixToEulerAngles(R);
-    EulerAngles deulerAngles = RotationMatrixToEulerAngles(dR);
+    std::string control_file("control");
+    std::string control_header("u1 ,u2 ,u3 ,u4");
 
-    double roll_deg = eulerAngles.roll * 180.0 / M_PI;
-    double pitch_deg = eulerAngles.pitch * 180.0 / M_PI;
-    double yaw_deg = eulerAngles.yaw * 180.0 / M_PI;
-    
-    double droll_deg = deulerAngles.roll * 180.0 / M_PI;
-    double dpitch_deg = deulerAngles.pitch * 180.0 / M_PI;
-    double dyaw_deg = deulerAngles.yaw * 180.0 / M_PI;
-
-
-
-        stateFile << x_state.col(i).row(0) << "," << x_state.col(i).row(1) << "," << x_state.col(i).row(2) << ",";
-        //stateFile << x_state.col(i).row(3) << "," << x_state.col(i).row(4) << "," << x_state.col(i).row(5) << ",";
-        stateFile << yaw_deg << "," << pitch_deg << "," << roll_deg << ",";
-        stateFile << x_state.col(i).row(6) << "," << x_state.col(i).row(7) << "," << x_state.col(i).row(8) << ",";
-        //stateFile << x_state.col(i).row(9) << "," << x_state.col(i).row(10) << "," << x_state.col(i).row(11) << "\n";
-        stateFile << dyaw_deg << "," << dpitch_deg << "," << droll_deg << "\n";
-
-    
-    std::cout << "Itr " << i + 1 << ", Roll: " << roll_deg << ", Pitch: " << pitch_deg << ", Yaw: " << yaw_deg << std::endl;
-    }
-    stateFile.close();
- 
-    // Write control data to a CSV file
-    std::ofstream controlFile("build/control.csv");
-    controlFile << "u1,u2,u3,u4\n"; // Header
-    for(int i = 0; i < MAX_ITERATIONS ; i++) {
-        controlFile << u_control.col(i).row(0) << "," << u_control.col(i).row(1) << "," << u_control.col(i).row(2) << "," << u_control.col(i).row(3) << "\n";
-    }
-    controlFile.close();
-    
+    write_data2csvfile<gene_t, CONTROL_DIMENSION, MAX_ITERATIONS>(control_file, u_control, control_header);
+   
     Quadrotor::free();
     return 0;
 }

@@ -58,3 +58,12 @@ auto RotationMatrixToEulerAngles(const RotationMatrix& R) -> EulerAngles {
     
     return angles;
 }
+
+auto convert_rodriguez_params2euler_angles(double rx, double ry, double rz) -> EulerAngles {
+    // Convert Rodrigues vector to quaternion
+    Quaternion q = RodriguesToQuaternion(rx, ry, rz);
+    // Convert quaternion to rotation matrix
+    RotationMatrix R = QuaternionToRotationMatrix(q);
+    // Convert rotation matrix to Euler angles (yaw, pitch, roll)
+    return RotationMatrixToEulerAngles(R); 
+}

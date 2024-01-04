@@ -18,3 +18,5 @@ auto RodriguesToQuaternion(double rx, double ry, double rz) -> Quaternion;
 auto QuaternionToRotationMatrix(const Quaternion& q) -> RotationMatrix;
 
 auto RotationMatrixToEulerAngles(const RotationMatrix& R) -> EulerAngles;
+
+auto convert_rodriguez_params2euler_angles(double rx, double ry, double rz) -> EulerAngles;
