@@ -3,11 +3,14 @@
 #include <aux.hpp>
 
 // Implemented as a Singleton
-class Quadrotor : UavVTOL<gene_t, STATE_DIMENSION, CONTROL_DIMENSION> {
-private:
+class Quadrotor : public UavVTOL<gene_t, STATE_DIMENSION, CONTROL_DIMENSION> {
+public:
+    typedef State_x_t x_t;
+    typedef Control_u_t u_t;
     typedef Eigen::Matrix<gene_t, CONTROL_DIMENSION, MAX_ITERATIONS> u_matrix_t;
     typedef Eigen::Matrix<gene_t, STATE_DIMENSION, MAX_ITERATIONS + 1> x_matrix_t;
-    
+
+private:    
     // Record
     u_matrix_t u_history;
     x_matrix_t x_trajectory;
@@ -48,9 +51,6 @@ private:
     static Quadrotor* instance;
 
 public:
-    typedef State_x_t x_t;
-    typedef Control_u_t u_t;
-
     Quadrotor(const Quadrotor& quad) = delete;
     
     static auto initialize(State_x_t x0) -> void { 
@@ -63,14 +63,30 @@ public:
         return instance;
     }
     
+    static auto free() -> void {
+        delete instance;
+    }
+
     auto get_curr_state() -> State_x_t {
         return instance->x_trajectory.col(instance->iteration); 
     }
 
+    auto get_u_history() -> u_matrix_t {
+        return instance->u_history;
+    } 
+
+    auto get_x_trajectory() -> x_matrix_t {
+        return instance->x_trajectory; 
+    }
+
     auto update_record(const Control_u_t& new_u) -> void { 
         State_x_t x_next = control_law(this->get_curr_state(), new_u);
-        instance->iteration++;
-        instance->x_trajectory.col(instance->iteration) << x_next;
         instance->u_history.col(instance->iteration) << new_u;
+        instance->iteration++;
+        instance->x_trajectory.col(instance->iteration) << x_next; 
     }
+
+    /*auto control_law(const State_x_t& x, const Control_u_t& u) -> State_x_t override {
+        return control_law(x, u);
+    }*/
 };

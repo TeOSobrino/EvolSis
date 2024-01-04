@@ -1,5 +1,8 @@
 CC = g++
 
+SCRIPTS_DIRECTORY = scripts
+SCRIPTS := $(shell find $(SCRIPTS_DIRECTORY) -name '*.gp')
+
 INCLUDE_DIRECTORY = include
 BUILD_DIRECTORY := build
 SOURCE_DIRECTORY := source
@@ -21,11 +24,11 @@ CPPFLAGS = -g -lm -march=native -fomit-frame-pointer -O3 -ffp-contract=fast\
 
 VFLAGS = --show-leak-kinds=all --track-origins=yes --leak-check=full -s
 
-all: $(BUILD_DIRECTORY)/$(TARGET_EXEC)
+all: $(BUILD_DIRECTORY)/$(TARGET_EXECUTABLE)
 #	@$(CC) -o $(TARGET_EXECUTABLE) $(PROG) $(SOURCES) -I$(INCLUDES) $(CFLAGS)
 
 # The final build step.
-$(BUILD_DIRECTORY)/$(TARGET_EXEC): $(OBJECTS)
+$(BUILD_DIRECTORY)/$(TARGET_EXECUTABLE): $(OBJECTS)
 	$(CC) $(CPPFLAGS) $(MAIN) $(OBJECTS) -o $@ -I$(INCLUDE_DIRECTORY)
 
 # Build step for C++ source
@@ -45,6 +48,10 @@ zip:
 .PHONY: clean
 clean:
 	rm -r $(BUILD_DIRECTORY); rm -f *.zip
+
+plot:
+	mkdir -p $(BUILD_DIRECTORY)/plots 
+	gnuplot $(SCRIPTS)
 
 clear:
 	clear

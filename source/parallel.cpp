@@ -8,7 +8,7 @@
 #include <iostream>
 #include <thread>
 #include <vector>
-
+#include <string>
 #include <parallel.hpp>
 
 void partial_fitness_calculate(eval_ptr obj_fnt, individual *pop,
@@ -113,12 +113,18 @@ void island_method(eval_ptr obj_fnt, crossover_ptr crossover_type,
         best_sol.genes[i] = INT32_MIN;
     }
 
-    std::string fit_filename = std::to_string(id);
-    fit_filename += "bestfit.csv";
+    std::string fit_filename = "build/bestfit";
+    fit_filename += std::to_string(id);
+    fit_filename += ".csv";
+
     std::ofstream genFile(fit_filename);
 
-    std::string pop_filename = std::to_string(id);
-    pop_filename += "bestfit.csv";
+    std::string pop_filename = "build/bestfit";
+    pop_filename += std::to_string(id);
+    pop_filename += ".csv";
+
+    //std::string pop_filename = std::to_string(id);
+    //pop_filename += "bestfit.csv";
     std::ofstream popFile(pop_filename);
     popFile << "t,best_fit\n";
 

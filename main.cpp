@@ -15,6 +15,8 @@
 Eigen::Matrix<gene_t, CONTROL_DIMENSION, CONTROL_DIMENSION> R;
 Eigen::Matrix<gene_t, STATE_DIMENSION, STATE_DIMENSION> Q;
 
+Quadrotor* Quadrotor::instance = NULL; 
+
 gene_t cost_functional2(individual& ind)
 {
     // Convert the C-style array to an Eigen column vector
@@ -27,15 +29,16 @@ gene_t cost_functional2(individual& ind)
     
     Quadrotor* drone = Quadrotor::get_instance();
 
-    x_horiz.col(0) = x_state.col(iteration); 
+    x_horiz.col(0) = drone->get_curr_state(); 
     gene_t sum = 0.0;
     
     //Quadrotor drone;
 
     for(int i = 0; i < PREDICTIVE_HORIZON; i++) {
-        x_horiz.col(i + 1) = drone.control_law(u_best.col(i));// A * x_horiz.col(i) + B * u_best.col(i);
-        sum += (x_horiz.col(i).transpose() * Q * x_horiz.col(i) + u_best.col(i).transpose() * R * u_best.col(i)).norm(); 
+        x_horiz.col(i + 1) = drone->control_law(x_horiz.col(i), u_best.col(i));
+        sum += (x_horiz.col(i + 1).transpose() * Q * x_horiz.col(i + 1) + u_best.col(i).transpose() * R * u_best.col(i)).norm(); 
     }    
+    
     ind.fitness = 100000 / sum; 
 
    // Possibility to add constraints
@@ -74,6 +77,10 @@ int main(int argc, char *argv[])
         std::cout << "next x: " << drone->get_curr_state() << std::endl;  
     }
     free(best_s);
+
+    Quadrotor::x_matrix_t x_state = drone->get_x_trajectory();
+    Quadrotor::u_matrix_t u_control = drone->get_u_history();
+
     //std::cout << A << std::endl << B << std::endl << u_control << std::endl;
    /*for(iteration = 0; iteration < MAX_ITERATIONS; iteration++) {
         // Call the AG with the current state
@@ -95,11 +102,11 @@ int main(int argc, char *argv[])
         
         free(best_s);
     }*/
-    //std::cout << std::endl << x_state << std::endl;
-    //std::cout << std::endl << u_control << std::endl;
+    std::cout << std::endl << x_state << std::endl;
+    std::cout << std::endl << u_control << std::endl;
 
      // Write state data to a CSV file
-    std::ofstream stateFile("state.csv");
+    std::ofstream stateFile("build/state.csv");
     //stateFile << "x,y,z,phi,theta,psi,dx,dy,dz,dphi,dtheta,dpsi\n"; // Header
     stateFile << "x,y,z,yaw,pitch,roll,dx,dy,dz,dyaw,dpitch,droll\n"; // Header 
     for(int i = 0; i < MAX_ITERATIONS ; i++) {
@@ -139,12 +146,13 @@ int main(int argc, char *argv[])
     stateFile.close();
  
     // Write control data to a CSV file
-    std::ofstream controlFile("control.csv");
+    std::ofstream controlFile("build/control.csv");
     controlFile << "u1,u2,u3,u4\n"; // Header
     for(int i = 0; i < MAX_ITERATIONS ; i++) {
         controlFile << u_control.col(i).row(0) << "," << u_control.col(i).row(1) << "," << u_control.col(i).row(2) << "," << u_control.col(i).row(3) << "\n";
     }
     controlFile.close();
-        
+    
+    Quadrotor::free();
     return 0;
 }
