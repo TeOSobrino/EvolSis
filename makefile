@@ -28,11 +28,11 @@ all: $(BUILD_DIRECTORY)/$(TARGET_EXECUTABLE)
 #	@$(CC) -o $(TARGET_EXECUTABLE) $(PROG) $(SOURCES) -I$(INCLUDES) $(CFLAGS)
 
 # The final build step.
-$(BUILD_DIRECTORY)/$(TARGET_EXECUTABLE): $(OBJECTS)
+$(BUILD_DIRECTORY)/$(TARGET_EXECUTABLE): $(OBJECTS) $(MAIN)
 	$(CC) $(CPPFLAGS) $(MAIN) $(OBJECTS) -o $@ -I$(INCLUDE_DIRECTORY)
 
 # Build step for C++ source
-$(BUILD_DIRECTORY)/%.o: $(SOURCE_DIRECTORY)/%.cpp #$(INCLUDE_DIRECTORY)/%.hpp 
+$(BUILD_DIRECTORY)/%.o: $(SOURCE_DIRECTORY)/%.cpp $(INCLUDE_DIRECTORY)/%.hpp 
 	mkdir -p $(dir $@)
 	$(CC) $(CPPFLAGS) -c $< -o $@ -I$(INCLUDE_DIRECTORY)
 
@@ -40,7 +40,7 @@ run:
 	@$(BUILD_DIRECTORY)/$(TARGET_EXECUTABLE)
 
 valgrind: all clear 
-	valgrind $(VFLAGS) $(TARGET_EXECUTABLE) 
+	valgrind $(VFLAGS) $(BUILD_DIRECTORY)/$(TARGET_EXECUTABLE) 
 
 zip:
 	zip -r TI.zip main.c include source makefile
