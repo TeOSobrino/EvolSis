@@ -107,7 +107,7 @@ $Mydata << EOD
 EOD
 
 do for [i=1:int(100)] {
-    splot 'build/state.csv' every ::0::i using 1:2:3 title 'drone' with lines, \
+   splot 'build/state.csv' every ::0::i using 1:2:3 title 'drone' with lines, \
             $Mydata title 'origin' with points
     pause 1
 }

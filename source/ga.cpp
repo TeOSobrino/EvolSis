@@ -16,6 +16,8 @@
 #include <vector>
 #include <memory>
 
+//#include <climits>
+
 #include <ga.hpp>
 #include <parallel.hpp>
 
@@ -45,7 +47,9 @@ void fitness_fnt(eval_ptr obj_fnt, individual *pop, individual &best_sol,
 {
 
     char best_changed = 0;
-    gene_t best_fit = obj_fnt(best_sol);
+    //gene_t best_fit = obj_fnt(best_sol); VOLTAR P CERTO DEPOIS AAAAAAAAA
+    gene_t best_fit = best_sol.fitness;
+    std::cout << "NAO PARALELO" << std::endl;
     individual synthetic;
 
     for (int i = 0; i < POP_SIZE; i++) {
@@ -59,7 +63,7 @@ void fitness_fnt(eval_ptr obj_fnt, individual *pop, individual &best_sol,
 
     sort_by_fitness(pop, POP_SIZE);
 
-    if (pop[0].fitness > best_sol.fitness) {
+    if (pop[0].fitness > best_fit) {
         individual_cp(best_sol, pop[0]);
         best_changed = 1;
     } else{
@@ -376,9 +380,10 @@ individual *interface(const char *selection, const char *crossover,
 
     srand(time(NULL));
 
-    for (int i = 0; i < POP_SIZE; i++) {
+     for (int i = 0; i < POP_SIZE; i++) {
         individual_generate(pop[i]);
     }
+   
 
     for (int i = 0; i < GENE_NUM; i++) {
         best_sol.genes[i] = INT32_MIN;

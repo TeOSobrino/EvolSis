@@ -1,6 +1,7 @@
 #pragma once
 #include <uavvtol.hpp>
 #include <aux.hpp>
+#include <random>
 
 // Implemented as a Singleton
 class Quadrotor : public UavVTOL<gene_t, STATE_DIMENSION, CONTROL_DIMENSION> {
@@ -85,8 +86,18 @@ public:
         instance->iteration++;
         instance->x_trajectory.col(instance->iteration) << x_next; 
     }
+    
+    /* Magnitude is the amplitude of the deviation that can be caused by the wind gust */
+    /*auto wind_gust(int magnitude) -> void {
+        // Adds Disturbances
+        std::random_device rd;
+        std::mt19937 gen(rd());
 
-    /*auto control_law(const State_x_t& x, const Control_u_t& u) -> State_x_t override {
-        return control_law(x, u);
+        for (int i = 0; i < STATE_DIMENSION; i++) {
+            //gene_t pos_state = instance->x_trajectory.col(instance->iteration);
+            std::uniform_real_distribution<> d(-magnitude, magnitude);
+            instance->x_trajectory.col(instance->iteration).row(i)
+                = ((gene_t)d(gen));
+        }
     }*/
 };

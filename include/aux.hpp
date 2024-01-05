@@ -2,8 +2,15 @@
 #include <fstream>
 #include <memory>
 
-#define GENE_NUM 40 // equal to the number of variables in the objective function
-#define POP_SIZE 100
+/* Control parameters */
+#define STATE_DIMENSION 12
+#define CONTROL_DIMENSION 4
+#define MAX_ITERATIONS 100
+#define PREDICTIVE_HORIZON 100
+#define CONTROL_HORIZON 70 
+
+#define GENE_NUM (CONTROL_HORIZON*CONTROL_DIMENSION) // equal to the number of variables in the objective function
+#define POP_SIZE 500
 #define GENERATION_NUM 1000
 #define BASE_MUT_RATE 0.02 // starting mutation rate
 #define MAX_MUT_RATE 0.64  // max mutation rate
@@ -12,19 +19,12 @@
 #define STALL_MAX 10 // number of generations that best individual can't change
 #define SYNTH_FACTOR                                                           \
     (POP_SIZE / 20) // # of individuals to be replaced by synthesis
-#define TEMPERATURE 50 //used in entropy-boltzmann selection
+#define TEMPERATURE 100 //used in entropy-boltzmann selection
 
-#define THREAD_NUM 2 //number of threads in calculating the obj_fnt
+#define THREAD_NUM 4 //number of threads in calculating the obj_fnt
 #define ISLAND_NUM 4 //not yet modifiable
 #define BASE_EXCHANGE_RATE 0.05 //not yet modifiable
 #define EXCHANGE_IND_NUM POP_SIZE*BASE_EXCHANGE_RATE //not yet modifiable
-
-/* Control parameters */
-#define STATE_DIMENSION 12
-#define CONTROL_DIMENSION 4
-#define MAX_ITERATIONS 100
-#define PREDICTIVE_HORIZON 100
-#define CONTROL_HORIZON 10 
 
 //#define PRINT       // if defined will print a log in each generation
 

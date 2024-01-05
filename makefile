@@ -56,6 +56,9 @@ plot:
 clear:
 	clear
 
+view:
+	feh build/plots/
+
 debcompile: 
 	@$(CC) -o $(TARGET_EXECUTABLE) $(MAIN) $(SOURCES) -I$(INCLUDES) $(DFLAGS)
 
