@@ -5,18 +5,48 @@
 
 Quadricopters are unstable systems, landing, takeoff and maneuverability are 
 challenges from the physics point of view. Several mathematical models try to
-solve this issue, we have chosen XXX model, that incrporates the YYY matrices
+solve this issue, we have chosen XXX model, that incorporates the YYY matrices
 the aplication of genetic algorithm is to find the ideal weights for the matrices
 in order to make the drone's control easier.
 
-## Matrices ##
+We make it clear that the choice of drone and the model used were taken from the XXX repository.
+Therefore, we are not the authors of the modeling. For questions about how the quadcopter was modeled,
+consult the TinyMPC staff repository.
 
-picture of matrices and explain (briefly) control theory behind
+## Control Strategy ##
 
-## Feedback loop ##
+To attempt to control the quadcopter, we chose to use a strategy **inspired** by the model-based predictive controller (MPC)
+in discrete time. 
 
-Explain feedback loop (each individual will be tested and given a fitness based on it's actions 
-and capabilities), explain how fitness is atributed. (modify requirements if needed) (maybe we will need cmake)
+*Caution: What we did is NOT MPC! Just an attempt to create what you could call a "controler", but it doesn't exactly follows the theory.
+What we wanted to achieve with this, was a cool and funny project for an undergrad colege discipline, and NOT a serius MPC Controler!*
+
+Therefore, it is worth highlighting some concepts:
+- Number of Iterations: Total number of time periods that the simulation lasts.
+- Prediction Horizon: Total number of iterations seen by the optimization algorithm in each execution.
+- Control Horizon: Total number of control inputs that the algorithm is capable of changing in each execution.
+- Admissible states: Set of states (state vector values) that are accepted as a result of the control solution.
+- Admissible controls: Set of control input values that are admissible as a solution.
+- Chromosome: Basic unit optimized by the Genetic Algorithm.
+
+With that in mind, let's explain what we tried to do:
+
+Starting from a given GA chromosome (a guess to be more direct), a set of control inputs was composed, with a total of H times the dimension of the control input, four (u1, u2, u3, u4), in this case of Crazyflie, where H corresponds to the so-called Control Horizon.
+
+Thus, through a simulation of P iterations (P Prediction Horizon), H commands were applied (one command per iteration) during the first H iterations and a set of commands with null inputs ({0, 0, 0, 0}) in later (P-H) iterations. In the end, an analogous cost function was used, inspired by the cost function used by the **LQR** controller in the P state (x) and control (u) vectors. Thus obtaining the answer (total sum of the cost) and submitting it to the genetic algorithm (GA).
+
+$$ cost = \textbf{x}_{k+1} \cdot Q \cdot \textbf{x}^T_{k+1} + \textbf{u}_k \cdot R \cdot \textbf{u}^T_k $$
+
+The idea is that the genetic algorithm minimizes the calculated cost over generations and thus finds the best control solution for a given instant.
+So in this way, as the solution is made as explained, it would become simple to discard solutions that violate the permissible conditions 
+of imposed solutions (which in practice may correspond to both desirable characteristics and design 
+requirements, such as not colliding the aircraft with the ceiling or floor).
+
+Finally, the idea is that the explained process is carried out for each of the system's iterations, feeding back to the GA (which is called again at each iteration) always with the value of the state that was actually reached after applying just a part of the solution (only the first command) proposed by the algorithm, which in practice corresponds to closing the control loop, making the system robust to instabilities and which in theory can allow a significant reduction in the size of the control and prediction horizon (de facto ideas employed by the MPC controller).
+
+Comments:
+- The present work did not close the loop, just carrying out an open-loop optimization and using the single solution in all iterations (Prediction Horizon = Number of Iterations).
+- The programmed genetic algorithm does not minimize functions, so the value delivered to the GA was in practice 10^{cte}/(sum of the cost).
 
 # Genetic Algorithm #
 
