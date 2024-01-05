@@ -2,7 +2,7 @@
   pkgs.mkShell {
     # nativeBuildInputs is usually what you want -- tools you need to run
     nativeBuildInputs = with pkgs.buildPackages; [ gnumake boost eigen ];
-    buildInputs = with pkgs.buildPackages; [ python3 gnuplot zsh ];
+    buildInputs = with pkgs.buildPackages; [ python3 gnuplot zsh valgrind ];
 
     # Setting zsh as the dafault shell
     shellHook = ''
