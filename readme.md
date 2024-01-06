@@ -48,6 +48,52 @@ Comments:
 - The present work did not close the loop, just carrying out an open-loop optimization and using the single solution in all iterations (Prediction Horizon = Number of Iterations).
 - The programmed genetic algorithm does not minimize functions, so the value delivered to the GA was in practice 10^{cte}/(sum of the cost).
 
+## Expected Results ##
+It was expected that it would be possible to stabilize the quadcopter around the origin or any other point, as shown below:
+
+### Gif of expected behavior ###
+
+![Gif of expected behavior](https://github.com/TeOSobrino/EvolSis/blob/main/imgs/tiny3dplot.gif)
+
+### Expected graph of position over time ###
+
+![Expected graph of position over time](https://github.com/TeOSobrino/EvolSis/blob/main/imgs/tinyStatePlot.png)
+
+### Expected graph of control inputs over time ###
+
+![Expected graph of control inputs over time](https://github.com/TeOSobrino/EvolSis/blob/main/imgs/tinyControlPlot.png)
+
+*Note: The expected results were obtained using the [TinyMPC](https://github.com/TinyMPC/TinyMPC) algorithm. Obviously we knew it wouldn't be possible to do something as good as theirs, but we hoped to achieve modest results.*
+
+## Achieved Results ##
+
+As mentioned in the observation above, we were unable to achieve these results. Straight up, we’re not even close, as you can see below:
+
+### Gif of the achieved behavior ###
+
+![Gif of the achieved behavior](https://github.com/TeOSobrino/EvolSis/blob/main/imgs/ag3dplot.gif)
+
+### Achieved graph of the position over time ###
+
+![Achieved graph of the position over time](https://github.com/TeOSobrino/EvolSis/blob/main/imgs/agxyz.png)
+
+### Achieved graph of control inputs over time ###
+
+![Achieved graph of control inputs over time](https://github.com/TeOSobrino/EvolSis/blob/main/imgs/agcontrol.png)
+
+Several reasons probably led to the non-success (a.k.a failure) of the project, some of them being:
+- Very large prediction horizon,
+- Use of **double** as the type of genes that make up the chromosome,
+- Control Horizon (chromosome size) too large.
+
+These three factors, indicated by Professor Dr. Eduardo do Valle Simoes (@simoesusp), most likely prevented the Genetic Algorithm (detailed below) from evolving properly in a timely manner. Thus, one possibility is to reduce the prediction horizon to something around 5 iterations or less, use a range smaller than that provided by double as a genetic unit and also reduce the control horizon (and thus the size of the chromosome).
+
+Thus, in theory, one can try to successively call the Genetic Algorithm in each of the iterations, letting it deal only with a restricted horizon, but allowing it to function through successive optimizations that together could lead the quadcopter to stability.
+
+*Author's Note: The outlined line of reasoning is based on MPC solutions for power electronics systems (systems in which the control to be effective needs to be extremely responsive), to understand more I suggest reading this [paper](https: //doi.org/10.1007/s00170-021-07682-3), I think it can help clarify ideas.*
+
+*Note: What was discussed above has no guarantee of operation, much less stability, so even if it were possible to control this quadcopter in simulation, a stability analysis would be necessary.*
+
 # Genetic Algorithm #
 
 ## What is a genetic algorithm? ##
@@ -153,6 +199,18 @@ excluding thoose individuals.
 In a determined period genocide will happen, eliminating all individuals and
 leaving only the best solution behind, effectivelly resetting the population.
 
+## Conclusions ##
+
+It was not possible to control the quadcopter with the proposed strategy, however, some modifications can be made in order to obtain better results. The project was closed, as it was a project created to be presented in the discipline of Evolutionary Systems Applied to Robotics, taught by professor Eduardo do Vale Simoes (@simoesusp), in the second semester of 2023 (2023.2), thus those involved in the project they delivered it as is, in order to properly take advantage of the end of year break.
+
+### Future Work ###
+
+Regarding the part relating to refining the control solution, it is suggested to read what was detailed in the sub-section (Achieved Results).
+
+Furthermore, at the request of @simoesusp, we recorded a [video](https://drive.google.com/file/d/1Si8IUnitEuL68pLAVMmbWQvhVeX2Zqkk/view?usp=sharing) with explanations about what was done. However, we apologize, as the video was only recorded in Brazilian Portuguese.
+
+![Video with explanations in Brazilian Portuguese](https://drive.google.com/file/d/1Si8IUnitEuL68pLAVMmbWQvhVeX2Zqkk/view?usp=sharing)
+
 ## How to Run ##
 
 ### Requirements ###
@@ -165,6 +223,14 @@ for Ubuntu:
 ``` bash
 sudo apt-get install -y g++ make cmake
 sudo apt install -y libboost-all-dev
+sudo apt install -y eigenlib gnuplot
+```
+
+for NixOS:
+
+In the root of the project do
+``` bash
+nix develop
 ```
 
 for compilation and running:
@@ -173,3 +239,18 @@ for compilation and running:
 make all
 make run
 ```
+
+to generate the plots at `build/plots`:
+
+```bash
+make plot
+```
+
+### Final Considerations from those involved ###
+@simoesusp: "I'll put your grades on the system. Go enjoy the beach for God's sake!"
+
+@TeOSobrino: "I hope no one undergoes the painful experience of messing with this. Painful!!"
+
+@CarlosCraveiro: "AAAAAAAAA, Hate!! Why doesn't anything work?"
+
+@luana-hartmann "it's working, I'm going to commit it here"
