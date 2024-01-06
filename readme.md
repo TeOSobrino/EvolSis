@@ -5,11 +5,10 @@
 
 Quadricopters are unstable systems, landing, takeoff and maneuverability are 
 challenges from the physics point of view. Several mathematical models try to
-solve this issue, we have chosen XXX model, that incorporates the YYY matrices
-the aplication of genetic algorithm is to find the ideal weights for the matrices
-in order to make the drone's control easier.
+solve this issue, we have chosen a control strategy based on MPC model, that incorporates the a model of the system in state-space
+the aplication of genetic algorithm is to find the ideal inputs for the drone in order to make  stabelize the drone.
 
-We make it clear that the choice of drone and the model used were taken from the XXX repository.
+We make it clear that the choice of drone and the model used were taken from the [TinyMPC](https://github.com/TinyMPC/TinyMPC) repository.
 Therefore, we are not the authors of the modeling. For questions about how the quadcopter was modeled,
 consult the TinyMPC staff repository.
 
@@ -71,7 +70,7 @@ As mentioned in the observation above, we were unable to achieve these results. 
 
 ### Gif of the achieved behavior ###
 
-![Gif of the achieved behavior](https://github.com/TeOSobrino/EvolSis/blob/main/imgs/ag3dplot.gif)
+![Gif of the achieved behavior](https://github.com/TeOSobrino/EvolSis/blob/main/imgs/ag3plot.gif)
 
 ### Achieved graph of the position over time ###
 
