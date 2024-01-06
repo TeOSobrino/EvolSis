@@ -191,7 +191,8 @@ Eigen::Matrix<gene_t, CONTROL_DIMENSION, CONTROL_HORIZON> tiny_sol;
             } 
         }
         //std::cout << best_sol.fitness << std::endl;
-        best_sol.fitness =  INT32_MIN; //obj_fnt(best_sol);//INT32_MIN;//std::numeric_limits<gene_t>::max();
+        best_sol.fitness =  INT32_MIN;
+        //best_sol.fitness =  obj_fnt(best_sol); // Uncomment This line and comment line above to see TinyMPC results
         std::cout << best_sol.fitness << std::endl;
 
     /*for (int i = 0; i < GENE_NUM; i++) {

@@ -1,4 +1,3 @@
-
 #include "cost_function.hpp"
 
 Eigen::Matrix<gene_t, CONTROL_DIMENSION, CONTROL_DIMENSION> R;
@@ -18,6 +17,10 @@ gene_t cost_functional(individual& ind)
 
     x_horiz.col(0) = drone->get_curr_state();
     gene_t sum = 0.0;
+    
+    /*double xyz_limit = 5;
+    
+    int error = 0;*/
 
     for(int i = 0; i < PREDICTIVE_HORIZON; i++) {
         x_horiz.col(i + 1) = drone->control_law(x_horiz.col(i), u_best.col(i));
